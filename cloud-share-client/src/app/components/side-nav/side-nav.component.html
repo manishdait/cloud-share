@@ -1,0 +1,45 @@
+<input class="toggle hidden" type="checkbox" id="sidebar">
+
+<div class="w-full h-full items-center justify-between gap-1 bg-white shadow-sm p-4 navbar">
+  <span class="text-[1.4rem] text-center font-semibold text-purple-600">Cloud Share</span>
+
+  <label for="sidebar" class="cursor-pointer">
+    <fa-icon class="text-[1.4rem] text-gray-500" [icon]="'bars'"/>
+  </label>
+</div>
+
+<label class="sidebar w-full h-full z-20" for="sidebar">
+  <div class="h-full flex flex-col gap-4 bg-white p-4 shadow-sm">
+    <section>
+      <span class="text-[1.5rem] text-center font-semibold text-purple-600">Cloud Share</span>
+    </section>
+
+    <ul class="flex flex-col gap-1 text-[1rem]">
+      <li class="p-2 rounded-md flex items-center justify-start gap-2 font-medium hover:bg-gray-100 hover:translate-x-1 transition-all cursor-pointer group" routerLink="/dashboard/me" routerLinkActive="active">
+        <fa-icon class="text-gray-500" [icon]="'gauge-high'"/>
+        <span class="text-gray-500 group-hover:text-neutral-800">Dashboard</span>
+      </li>
+
+      <li class="p-2 rounded-md flex items-center justify-start gap-2 font-medium hover:bg-gray-100 hover:translate-x-1 transition-all cursor-pointer group" routerLink="/dashboard/upload" routerLinkActive="active">
+        <fa-icon class="text-gray-500" [icon]="'upload'"/>
+        <span class="text-gray-500 group-hover:text-neutral-800">Upload</span>
+      </li>
+
+      <li class="p-2 rounded-md flex items-center justify-start gap-2 font-medium hover:bg-gray-100 hover:translate-x-1 transition-all cursor-pointer group" routerLink="/dashboard/files" routerLinkActive="active">
+        <fa-icon class="text-gray-500" [icon]="'folder-closed'"/> 
+        <span class="text-gray-500 group-hover:text-neutral-800">My Files</span>
+      </li>
+
+      <li class="p-2 rounded-md flex items-center justify-start gap-2 font-medium hover:bg-gray-100 hover:translate-x-1 transition-all cursor-pointer group">
+        <fa-icon class="text-gray-500" [icon]="'star'"/> 
+        <span class="text-gray-500 group-hover:text-neutral-800">Subscriptions</span>
+      </li>
+
+      <li class="p-2 rounded-md flex items-center justify-start gap-2 font-medium hover:bg-gray-100 hover:translate-x-1 transition-all cursor-pointer group">
+        <fa-icon class="text-gray-500" [icon]="'receipt'"/> 
+        <span class="text-gray-500 group-hover:text-neutral-800">Transactions</span>
+      </li>
+    </ul>
+  </div>
+</label>
+

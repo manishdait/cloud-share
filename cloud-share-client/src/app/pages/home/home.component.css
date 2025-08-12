@@ -1,0 +1,11 @@
+.sidebar {
+  width: 18rem;
+}
+@media screen and (max-width: 900px) {
+  .main {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+  }
+}

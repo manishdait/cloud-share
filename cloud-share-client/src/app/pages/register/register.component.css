@@ -1,0 +1,12 @@
+.bg-gradient-custom {
+  background: linear-gradient(to bottom right, #f3e8ff, #e0f2fe);
+}
+
+@media screen and (max-width:300px) {
+  .input-group-row {
+    flex-wrap: wrap;
+  }
+  .input-group-row div {
+    width: 100%;
+  }
+}

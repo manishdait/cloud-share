@@ -1,0 +1,55 @@
+<div class="w-screen h-screen flex items-center justify-center p-8 bg-gradient-custom">
+  <div class="w-[min(420px,100%)] flex flex-col gap-2 items-center justify-center mx-auto rounded-2xl p-8 bg-white shadow-2xl">
+    <h1 class="text-purple-700 font-bold text-center text-[2rem]">Cloud Share</h1>
+    
+    <div class="w-full flex flex-col gap-8">
+      <span class="text-[1.2rem] text-center block text-neutral-800 font-medium">Create an Account</span>
+
+      <form class="w-full flex flex-col gap-4" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="flex items-center justify-between gap-4 input-group-row">
+          <div class="flex flex-col gap-0.5 text-neutral-800 text-[1rem]">
+            <label class="w-full text-[.9rem] font-medium">First Name</label>
+            <input class="w-full border-[.1em] border-neutral-200 rounded-md p-2 focus:border-purple-700"  type="text" placeholder="eg.Jhon" formControlName="firstname">
+            @if (formError() && formControls['firstname'].errors) {
+              <span class="text-[.9rem] text-red-600">*Firstname required.</span>
+            }
+          </div>
+
+          <div class="flex flex-col gap-0.5 text-neutral-800 text-[1rem]">
+            <label class="w-full text-[.9rem] font-medium">Last Name</label>
+            <input class="w-full border-[.1em] border-neutral-200 rounded-md p-2 focus:border-purple-700"  type="text" placeholder="eg.Doe" formControlName="lastname">
+            @if (formError() && formControls['lastname'].errors) {
+              <span class="text-[.9rem] text-red-600">*Lastname required.</span>
+            }
+          </div>
+        </div>
+        
+        <div class="flex flex-col gap-0.5 text-neutral-800 text-[1rem]">
+          <label class="text-[.9rem] font-medium">Email</label>
+          <input class="border-[.1em] border-neutral-200 rounded-md p-2 focus:border-purple-700"  type="email" placeholder="eg.jhondoe@dev.in" formControlName="email">
+          @if (formError() && (formControls['email'].errors && formControls['email'].errors['required'])) {
+            <span class="text-[.9rem] text-red-600">*User email required.</span>
+          }
+          @if (formError() && (formControls['email'].errors && formControls['email'].errors['email'])) {
+            <span class="text-[.9rem] text-red-600">*Enter a valid email address.</span>
+          }
+        </div>
+
+        <div class="flex flex-col gap-0.5 text-neutral-800 text-[1rem]">
+          <label class="text-[.9rem] font-medium">Password</label>
+          <input class="border-[.1em] border-neutral-200 rounded-md p-2 focus:border-purple-700"  type="password" placeholder="secret-key" formControlName="password">
+          @if (formError() && (formControls['password'].errors && formControls['password'].errors['required'])) {
+            <span class="text-[.9rem] text-red-600">*Password required.</span>
+          }
+          @if (formError() && (formControls['password'].errors && (formControls['password'].errors['minlength'] || formControls['password'].errors['maxlength']))) {
+            <span class="text-[.9rem] text-red-600">*Password must be between 8 to 16 character long.</span>
+          }
+        </div>
+
+        <button class="bg-purple-600 text-[1.2rem] font-semibold text-white p-2 rounded-[2rem] cursor-pointer transition-all hover:scale-105 shadow-lg hover:bg-purple-700 mt-2" type="submit">Create Account</button>
+      </form>
+
+      <span class="block text-center w-full text-[1rem] text-medium">Already have an Account? <a class="text-purple-600 cursor-pointer" routerLink="/login" replaceUrl="true">Login</a></span>
+    </div>
+  </div>
+</div>

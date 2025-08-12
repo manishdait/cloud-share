@@ -1,0 +1,24 @@
+spring:
+  application:
+    client: ${CLIENT_ADDRESS:http://localhost:4200}
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/cloud_share_db}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:password}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  flyway:
+    enabled: false
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY:a8efb8d5018762abb5ea935c2544287cd73498afa5019e803068a3c65b9c449a}
+      expiration: ${JWT_EXPIRATION:3600}
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USERNAME:no-reply@cloud-share.in}
+    password: ${SMTP_PASSWORD:password}
+
+server:
+  port: ${SERVER_PORT:8080}

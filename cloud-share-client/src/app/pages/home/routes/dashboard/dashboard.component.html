@@ -1,0 +1,39 @@
+<div class="h-full w-full flex flex-col gap-8">
+  <div class="flex items-center justify-between gap-2 flex-wrap">
+    <h1 class="text-[1.5rem] font-medium text-neutral-800">Dashboard Overview</h1>
+
+    <span class="bg-purple-100 text-purple-600 p-2 flex items-center justify-center gap-1 px-4 rounded-[4rem]">
+      <fa-icon class="text-[.8rem]" [icon]="'coins'"/>
+      <span class="text-[1rem] font-semibold ">{{ user().credit + ' Credit' }}</span>
+    </span>
+  </div>
+
+  <section class="flex flex-col gap-2 bg-white p-4 shadow-sm rounded-lg">
+    <span class="text-[1.5rem]">Recent Files</span>
+    
+    <div class="p-2">
+      @if ((files$ | async)!.length == 0) {
+        <div class="flex p-2 items-center flex-col justify-center gap-4">
+          <div class="w-[4rem] h-[4rem] flex items-center justify-center bg-purple-100 rounded-full">
+            <fa-icon class="text-purple-600 text-[1.5rem]" [icon]="'file'"/>
+          </div>
+
+          <div>
+            <span class="block font-medium text-[1.2rem] text-center text-neutral-800">No file uploaded yet.</span>
+            <span class="block text-center text-[1rem] text-neutral-400">Upload your files to get started with cloud share.</span>
+          </div>
+        </div>
+      } @else {
+        <app-tabular-view class="table-view" [files]="files$"/>
+      
+        <ul class="card-view" >
+          @for (file of files$ | async; track file.uuid) {
+            <li class="w-full py-4 not-last:border-b-[.1em] border-neutral-300">
+              <app-card-view [file]="file"/>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </section>
+</div>

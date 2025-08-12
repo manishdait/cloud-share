@@ -1,0 +1,29 @@
+spring:
+  application:
+    client: http://localhost/4200
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cloud_share_db
+    username: postgres
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    user: postgres
+    password: password
+    baseline-on-migrate: true
+    baseline-description: "init"
+    baseline-version: 0
+  security:
+    jwt:
+      secret-key: 81143a9407f2fdc4625ecd26eaeac64cd9512b3f57dfc513179e8f237e29e18d
+      expiration: 3600
+  mail:
+    host: localhost
+    port: 1025
+    username: no-reply@cloud-share.in
+    password: password
+
+server:
+  port: 8080

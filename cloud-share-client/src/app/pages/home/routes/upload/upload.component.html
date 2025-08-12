@@ -1,0 +1,42 @@
+<div class="flex flex-col gap-8">
+  <h1 class="text-[1.5rem] font-medium text-neutral-800">Upload Files</h1>
+
+  <section class="flex bg-white shadow-sm p-4 rounded-lg">
+    <input type="file" class="hidden" id="files" (input)="onInput($event)" multiple/>
+
+    <label class="w-full flex flex-col items-center justify-center gap-4 bg-white border-[.1em] border-dashed border-neutral-400 p-4 rounded-md cursor-pointer" for="files" (dragenter)="onDragOver($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+      <div class="w-[4rem] h-[4rem] flex items-center justify-center bg-purple-100 rounded-full">
+        <fa-icon class="text-purple-600" [icon]="'upload'"/>
+      </div>
+
+      <div class="text-neutral-800">
+        <span class="block text-center w-full text-[1.2rem] font-medium">Drag or drop files here</span>
+        <span class="block text-center w-full text-[1rem]">or click to brows</span>
+      </div>
+    </label>
+  </section>
+
+  <section class="flex flex-col gap-4">
+    @if (files().length > 0) {
+        <span>Selected Files</span>
+
+        <ul>
+          @for (file of files(); track $index) {
+          <li class="flex items-center justify-between gap-1 p-2 not-last:border-b-[.1em] not-last:border-neutral-200">
+            <div class="flex items-center gap-4">
+              <fa-icon class="text-purple-700" [icon]="'file'"/>
+
+              <span class="flex flex-col">
+                <span class="text-[1rem] text-neutral-800">{{ file.name }}</span>
+              </span>
+            </div>
+
+            <fa-icon class="text-[.9rem] text-neutral-600 cursor-pointer hover:text-red-600" [icon]="'close'" (click)="removeFile($index)"/>
+          </li>
+          }
+        </ul>
+
+        <button class="w-full text-[1rem] bg-purple-600 text-white cursor-pointer font-medium p-2 rounded-md hover:bg-purple-700" (click)="onUpload()">Upload</button>
+    }
+  </section>
+</div>

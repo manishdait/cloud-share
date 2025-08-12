@@ -1,0 +1,29 @@
+spring:
+  application:
+    client: ${CLIENT_ADDRESS}
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    user: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    baseline-on-migrate: true
+    baseline-description: "init"
+    baseline-version: 0
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: ${JWT_EXPIRATION}
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+
+server:
+  port: ${SERVER_PORT}

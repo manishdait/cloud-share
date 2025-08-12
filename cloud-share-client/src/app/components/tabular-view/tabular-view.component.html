@@ -1,0 +1,37 @@
+<table class="w-full">
+  <thead class="text-left border-b-[.1em] text-purple-600 border-neutral-200 text-[1rem] bg-purple-50">
+    <tr>
+      <th class="w-[45%] p-2">Name</th>
+      <th class="w-[15%] p-2">Size</th>
+      <th class="w-[15%] p-2">Uploaded By</th>
+      <th class="w-[15%] p-2">Sharing</th>
+      <th class="w-[5%] p-2">Actions</th>
+    </tr>
+  </thead>
+
+  <tbody class="text-left  text-neutral-800 p-2 text-[1rem]">
+    @for (file of files() | async; track file.uuid) {
+      <tr class="not-last:border-b-[.1em] not-last:border-neutral-200 hover:bg-neutral-50">
+        <td class="px-2 py-4">{{ file.name }}</td>
+        <td class="px-2 py-4 text-neutral-500">{{ parseSize(file.size) }}</td>
+        <td class="px-2 py-4 text-neutral-500">{{ parseTimestamp(file.uploadedAt) }}</td>
+        <td class="px-2 py-4 flex items-center gap-2">
+          <div class="flex items-center gap-1 rounded-[2rem] px-2" [class]="{'bg-green-600/15': file.isPublic, 'bg-orange-600/15': !file.isPublic}"  (click)="toggleVisiblity(file.uuid, !file.isPublic)">
+            <fa-icon class="text-[.7rem]" [class]="{'text-green-600': file.isPublic, 'text-orange-600': !file.isPublic}" [icon]="file.isPublic? 'globe':'lock'"/>
+            <span class="cursor-pointer text-[.9rem]" [class]="{'text-green-600': file.isPublic, 'text-orange-600': !file.isPublic}">{{ file.isPublic? 'Public' : 'Private' }}</span>
+          </div>
+
+          @if (file.isPublic){
+            <fa-icon class="text-neutral-400 cursor-pointer" [icon]="'copy'" title="Copy Link" (click)="copyLink(file.uuid)"/>
+          } 
+        </td>
+        <td class="px-2 py-4">
+          <div class="flex items-center justify-start gap-4 text-neutral-400">
+            <fa-icon class="cursor-pointer hover:text-neutral-800 text-[.9rem]" [icon]="'download'" (click)="downloadFile(file.uuid)"/>
+            <fa-icon class="cursor-pointer hover:text-red-600 text-[.9rem]" [icon]="'trash'" (click)="deleteFile(file.uuid)"/>
+          </div>
+        </td>
+      </tr>
+    } 
+  </tbody>
+</table>

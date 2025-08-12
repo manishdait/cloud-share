@@ -1,0 +1,27 @@
+spring:
+  profiles:
+    active:
+    - dev
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: cloud-share-api
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database: postgresql
+  mail:
+    properties:
+      mail:
+        smtp: "*"
+      auth: true
+      starttls:
+        enabled: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+razorpay:
+  secret-key: ${RAZORPAY_SECRET_KEY}
+  api-key: ${RAZORPAY_API_KEY}

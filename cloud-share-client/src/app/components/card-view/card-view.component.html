@@ -1,0 +1,32 @@
+<div class="w-full flex items-center justify-between">
+  <div class="flex items-center gap-4">
+    <fa-icon class="text-[1.5rem] text-purple-600" [icon]="'file'"/>
+    <span class="flex flex-col">
+      <span class="text-[1rem] font-medium break-all text-neutral-800 block">{{ file().name }}</span>
+      <span class="text-[.8rem] text-neutral-400">{{ parseSize(file().size) }}</span>
+    </span>
+  </div>
+
+  <div class="w-[2rem] h-[2rem] flex items-center justify-center rounded-full cursor-pointer hover:bg-gray-100 relative" (click)="toggleMenu()">
+    <fa-icon class="text-neutral-400" [icon]="menuToggle()? 'close' : 'ellipsis-vertical'"/>
+
+    @if (menuToggle()) {
+      <ul class="absolute w-[8rem] -bottom-15 right-10 bg-white border-[.1em] border-neutral-200 rounded-md text-[.9rem] z-20">
+        <li class="px-2 py-1 not-last:border-b-[.1em] text-red-600 border-neutral-200 cursor-pointer hover:bg-red-600/5 flex items-center gap-1">
+          <fa-icon [icon]="'trash'"/>
+          <span>Delete</span>
+        </li>
+
+        <li class="px-2 py-1 not-last:border-b-[.1em] text-neutral-800 border-neutral-200 cursor-pointer hover:bg-gray-100 flex items-center gap-1">
+          <fa-icon class="text-neutral-600" [icon]="'download'"/>
+          <span>Download</span>
+        </li>
+
+        <li class="px-2 py-1 cursor-pointer text-neutral-800 hover:bg-gray-100 flex items-center gap-1">
+          <fa-icon class="text-neutral-600" [icon]="'globe'"/>
+          <span>Make Visible</span>
+        </li>
+      </ul>
+    }
+  </div>
+</div>

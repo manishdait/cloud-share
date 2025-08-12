@@ -1,0 +1,38 @@
+.bg-gradient-sidebar {
+  background: linear-gradient(180deg, #6b46c1, #805ad5);
+}
+
+.toggle {
+  position: fixed;
+}
+
+.active {
+  background: #f3e8ff;
+}
+.active span, .active fa-icon {
+  color: #9810fa;
+}
+
+.navbar {
+  display: none;
+}
+
+@media screen and (max-width: 900px) {
+  .navbar {
+    display: flex;
+  }
+  .sidebar {
+    display: none;
+    position: fixed;
+    background-color: rgba(88, 88, 88, 0.377);
+    top: 0;
+    left: 0;
+  }
+  .sidebar div {
+    width: min(100%,20rem);
+  }
+
+  .toggle:checked ~ .sidebar {
+    display: block;
+  }
+}

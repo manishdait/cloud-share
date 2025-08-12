@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email Address</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            background-color: #f7f9fc;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 30px;
+            text-align: center;
+        }
+        .header {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+        .body-text {
+            font-size: 16px;
+            color: #4a4a4a;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .verification-code {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: #9810fa;
+            background-color: #f1e0fd;
+            display: inline-block;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 20px auto;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #9810fa;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        .footer-text {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 30px;
+        }
+        @media (max-width: 480px) {
+            .card {
+                padding: 20px;
+            }
+            .header {
+                font-size: 20px;
+            }
+            .verification-code {
+                font-size: 28px;
+            }
+        }
+    </style>
+  </head>
+
+  <body style="margin:0;padding:0;background-color:#f7f9fc;">
+    <div class="container" style="max-width:600px;margin:0 auto;padding:20px;">
+        <div class="card" style="background-color:#ffffff;border-radius:8px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06);padding:30px;text-align:center;">
+            <h1 class="header" style="font-size:24px;font-weight:600;color:#1a1a1a;margin-bottom:20px;">
+                Confirm Your Email Address
+            </h1>
+            <p class="body-text" style="font-size:16px;color:#4a4a4a;line-height:1.5;margin-bottom:20px;">
+                Hi, <span th:text="${args.get('username')}" style="font-weight: bold;"></span>
+            </p>
+            <p class="body-text" style="font-size:16px;color:#4a4a4a;line-height:1.5;margin-bottom:20px;">
+                Thanks for starting your journey with <span style="font-weight: bold;">Cloud Share</span>. To complete your registration, please verify your email address.
+            </p>
+
+            <!-- Verification Code Section -->
+            <div class="body-text" style="font-size:16px;color:#4a4a4a;line-height:1.5;margin-bottom:20px;">
+                Your verification code is:
+            </div>
+            <div th:text="${args.get('token')}" class="verification-code" style="font-size:32px;font-weight:700;letter-spacing:4px;color:#9810fa;background-color:#f1e0fd;display:inline-block;padding:15px 25px;border-radius:8px;margin:20px auto;"> 
+            </div>
+            
+            <p class="body-text" style="font-size:16px;color:#4a4a4a;line-height:1.5;margin-bottom:20px;">
+                You can also verify your email by clicking the button below:
+            </p>
+
+            <!-- CTA Button -->
+            <a th:href="${args.get('client_url')}" class="cta-button" style="display:inline-block;background-color:#9810fa;color:#ffffff;font-weight:600;padding:12px 24px;text-decoration:none;border-radius:6px;font-size:16px;">
+                Verify Email
+            </a>
+            
+            <p class="body-text" style="font-size:16px;color:#4a4a4a;line-height:1.5;margin-top:20px;">
+                If you did not request this, please ignore this email.
+            </p>
+        </div>
+        
+        <div class="footer-text" style="font-size:12px;color:#8c8c8c;margin-top:30px;text-align:center;">
+            © <span>Cloud Share</span> <span>2025</span> | All rights reserved.
+        </div>
+    </div>
+  </body>
+</html>

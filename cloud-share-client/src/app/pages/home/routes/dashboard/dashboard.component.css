@@ -1,0 +1,12 @@
+.card-view {
+  display: none;
+}
+
+@media screen and (max-width: 1155px) {
+  .card-view {
+    display: block;
+  }
+  .table-view {
+    display: none;
+  }
+}

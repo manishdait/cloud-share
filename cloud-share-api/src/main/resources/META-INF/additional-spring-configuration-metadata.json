@@ -1,0 +1,29 @@
+{
+  "properties": [
+    {
+      "name": "spring.application.client",
+      "type": "java.lang.String",
+      "description": "Client URL for the application"
+    },
+    {
+      "name": "spring.security.jwt.secret-key",
+      "type": "java.lang.String",
+      "description": "Secret key to generate JWT token"
+    },
+    {
+      "name": "spring.security.jwt.expiration",
+      "type": "java.lang.Integer",
+      "description": "Expiration seconds for JWT token"
+    },
+    {
+      "name": "razorpay.secret-key",
+      "type": "java.lang.String",
+      "description": "RazorPay Secret key"
+    },
+    {
+      "name": "razorpay.api-key",
+      "type": "java.lang.String",
+      "description": "RazorPay Api key"
+    }
+  ]
+}
