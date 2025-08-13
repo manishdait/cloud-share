@@ -1,4 +1,4 @@
-import { Component, input } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { timestampToDate, getSize } from "../../shared/utils";
 import { File } from "../../types/file.type";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
@@ -9,8 +9,9 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
   templateUrl: './details.component.html',
   styleUrl: './details.component.css'
 })
-export class DetailsComponent {
+export class DetailsComponent {  
   file = input.required<File>();
+  onDownload = output<boolean>();
 
   parseDate(date: Date) {
     return timestampToDate(date);
@@ -18,5 +19,11 @@ export class DetailsComponent {
 
   parseSize(size: number) {
     return getSize(size);
+  }
+
+  onClick() {
+    console.log("click");
+    
+    this.onDownload.emit(true);
   }
 }

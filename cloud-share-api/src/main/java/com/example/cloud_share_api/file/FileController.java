@@ -52,24 +52,25 @@ public class FileController {
 
   @GetMapping("/public/download/{id}")
   public ResponseEntity<Resource> downloadPublicFileById(@PathVariable String id) {
-    File fileMetadata = fileService.downloadPublicFile(id);
-    Resource resource;
+    File file = fileService.downloadPublicFile(id);
     try {
-      resource = new UrlResource(fileMetadata.getLocation());
-      String contentType = fileMetadata.getType();
+      Path filePath = Paths.get(file.getLocation()).normalize();
+      Resource resource = new UrlResource(filePath.toUri());
+      String contentType = file.getType();
       if (contentType == null) {
         contentType = "application/octet-stream";
       }
 
       HttpHeaders headers = new HttpHeaders();
       headers.add(HttpHeaders.CONTENT_TYPE, contentType);
-      headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileMetadata.getName() + "\"");
+      headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"");
+      headers.add("X-File-Name", file.getName());
 
       return ResponseEntity.ok()
         .headers(headers)
         .contentLength(resource.contentLength())
         .contentType(MediaType.parseMediaType(contentType))
-        .build();
+        .body(resource);
     } catch (Exception e) {
       e.printStackTrace();
       return ResponseEntity.internalServerError().build();
@@ -78,19 +79,20 @@ public class FileController {
 
   @GetMapping("/download/{id}")
   public ResponseEntity<Resource> downloadFileById(@PathVariable String id, Authentication authentication) {
-    File fileMetadata = fileService.downloadFile(id, authentication);
+    File file = fileService.downloadFile(id, authentication);
     
     try {
-      Path filePath = Paths.get(fileMetadata.getLocation()).normalize();
+      Path filePath = Paths.get(file.getLocation()).normalize();
       Resource resource = new UrlResource(filePath.toUri());
-      String contentType = fileMetadata.getType();
+      String contentType = file.getType();
       if (contentType == null) {
         contentType = "application/octet-stream";
       }
 
       HttpHeaders headers = new HttpHeaders();
       headers.add(HttpHeaders.CONTENT_TYPE, contentType);
-      headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileMetadata.getName() + "\"");
+      headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"");
+      headers.add("X-File-Name", file.getName());
 
       return ResponseEntity.ok()
         .headers(headers)

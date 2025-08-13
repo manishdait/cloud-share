@@ -54,8 +54,20 @@ export class TabularViewComponent {
     })
   }
 
-  downloadFile(uuid: string) {
-
+  download(uuid:string) {
+    this.fileService.downloadPublicFile(uuid).subscribe({
+      next: (res) => {
+        const fileName = res.headers.get('X-File-Name') as string || 'download';
+        const blob = new Blob([res.body!], { type: res.headers.get('Content-Type') as string });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    })
   }
 
   copyLink(uuid: string) {

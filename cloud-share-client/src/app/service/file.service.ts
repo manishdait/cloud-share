@@ -34,4 +34,18 @@ export class FileService {
   deleteFile(uuid: string): Observable<{[key: string]: string}> {
     return this.client.delete<{[key: string]: string}>(`${URL}/${uuid}`)
   }
+
+  downloadPublicFile(uuid: string): Observable<HttpResponse<Blob>> {
+    return this.client.get<Blob>(`${URL}/public/download/${uuid}`, {
+      observe: 'response',
+      responseType: 'blob' as 'json'
+    });
+  }
+
+  downloadFile(uuid: string): Observable<HttpResponse<Blob>> {
+    return this.client.get<Blob>(`${URL}/download/${uuid}`, {
+      observe: 'response',
+      responseType: 'blob' as 'json'
+    });
+  }
 }

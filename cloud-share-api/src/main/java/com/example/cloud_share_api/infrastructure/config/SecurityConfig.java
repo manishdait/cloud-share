@@ -64,6 +64,7 @@ public class SecurityConfig {
     configuration.setAllowedOrigins(List.of(clientUrl));
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.CONTENT_LENGTH, HttpHeaders.ACCEPT, HttpHeaders.AUTHORIZATION, HttpHeaders.ORIGIN));
+    configuration.setExposedHeaders(List.of(HttpHeaders.CONTENT_DISPOSITION, "X-File-Name"));
 
     UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
     urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", configuration);

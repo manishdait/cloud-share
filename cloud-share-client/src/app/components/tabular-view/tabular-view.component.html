@@ -27,7 +27,7 @@
         </td>
         <td class="px-2 py-4">
           <div class="flex items-center justify-start gap-4 text-neutral-400">
-            <fa-icon class="cursor-pointer hover:text-neutral-800 text-[.9rem]" [icon]="'download'" (click)="downloadFile(file.uuid)"/>
+            <fa-icon class="cursor-pointer hover:text-neutral-800 text-[.9rem]" [icon]="'download'" (click)="download(file.uuid)"/>
             <fa-icon class="cursor-pointer hover:text-red-600 text-[.9rem]" [icon]="'trash'" (click)="deleteFile(file.uuid)"/>
           </div>
         </td>
