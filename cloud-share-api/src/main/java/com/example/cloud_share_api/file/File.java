@@ -44,7 +44,7 @@ public class File {
   @Column(name = "size", nullable = false)
   private Long size;
 
-  @Column(name = "location", nullable = false)
+  @Column(name = "location", columnDefinition = "TEXT", nullable = false)
   private String location;
 
   @Column(name = "is_public")

@@ -2,6 +2,7 @@ package com.example.cloud_share_api;
 
 import java.time.Instant;
 
+import com.example.cloud_share_api.file.File;
 import com.example.cloud_share_api.token.Token;
 import com.example.cloud_share_api.token.TokenType;
 import com.example.cloud_share_api.user.User;
@@ -22,6 +23,7 @@ public class TestUtils {
       .lastname("Test Lastname")
       .email(username)
       .password(password)
+      .credit(5)
       .build();
   }
 
@@ -35,6 +37,21 @@ public class TestUtils {
       .token(token)
       .type(tokenType)
       .expiration(Instant.now().plusSeconds(3600))
+      .build();
+  }
+
+  /*
+   * File
+   */
+  public static File createFile(String uuid) {
+    return File.builder()
+      .uuid(uuid)
+      .name("test.txt")
+      .type("TEXT/TEXT")
+      .size(20L)
+      .uploadedAt(Instant.now())
+      .isPublic(false)
+      .location("/test/resource/test.txt")
       .build();
   }
 }
