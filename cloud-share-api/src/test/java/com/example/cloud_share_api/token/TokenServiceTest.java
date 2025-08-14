@@ -146,7 +146,7 @@ public class TokenServiceTest {
     when(tokenRepository.findByTokenAndType(eq(token), eq(type)))
       .thenReturn(Optional.of(mockToken));
     when(mockToken.getUser()).thenReturn(mockUser);
-    when(mockUser.getUsername()).thenReturn("mockUser@dev.in");
+    when(mockUser.getUsername()).thenReturn("mockUser@test.in");
 
     Assertions.assertThatThrownBy(() -> tokenService.validateToken(token, type, user))
       .isInstanceOf(InvalidTokenException.class);

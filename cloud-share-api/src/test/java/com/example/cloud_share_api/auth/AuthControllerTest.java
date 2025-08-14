@@ -94,7 +94,7 @@ public class AuthControllerTest {
 
   @Test 
   void shouldRegisterNewUser() {
-    final RegistrationRequest request = new RegistrationRequest("Peter", "Griffin", "peter@dev.com", "password");
+    final RegistrationRequest request = new RegistrationRequest("Peter", "Griffin", "peter@test.com", "password");
 
     ResponseEntity<Map<String, Boolean>> result =  restTemplate.exchange(
       BASE_URL + "/sign-up",
@@ -108,7 +108,7 @@ public class AuthControllerTest {
 
   @Test 
   void shouldReturnConflict_onRegisterNewUser_ifUserAlreadyExists() {
-    final RegistrationRequest request1 = new RegistrationRequest("Peter", "Griffin", "peter@dev.com", "password");
+    final RegistrationRequest request1 = new RegistrationRequest("Peter", "Griffin", "peter@test.com", "password");
 
     ResponseEntity<Map<String, Boolean>> signUpResult =  restTemplate.exchange(
       BASE_URL + "/sign-up",
@@ -119,7 +119,7 @@ public class AuthControllerTest {
 
     Assertions.assertThat(signUpResult.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-    final RegistrationRequest request2 = new RegistrationRequest("Louis", "Griffin", "peter@dev.com", "password");
+    final RegistrationRequest request2 = new RegistrationRequest("Louis", "Griffin", "peter@test.com", "password");
 
     ResponseEntity<ErrorResponse> result =  restTemplate.exchange(
       BASE_URL + "/sign-up",
@@ -133,7 +133,7 @@ public class AuthControllerTest {
 
   @Test 
   void shouldVerifyUserEmail() {
-    User user = createTestUser("peter@dev.in", passwordEncoder.encode("password"));
+    User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
     String token = TEST_TOKEN;
@@ -143,7 +143,7 @@ public class AuthControllerTest {
     tokenRepository.save(verificationToken);
 
     ResponseEntity<AuthResponse> result =  restTemplate.exchange(
-      BASE_URL + "/verify-email?email=peter@dev.in&token=" + token,
+      BASE_URL + "/verify-email?email=peter@test.in&token=" + token,
       HttpMethod.POST,
       new HttpEntity<>(null),
       AuthResponse.class
@@ -156,7 +156,7 @@ public class AuthControllerTest {
 
   @Test 
   void shouldReturn_badRequest_onVerifyUserEmail_ifInvalidToken() {
-    User user = createTestUser("peter@dev.in", passwordEncoder.encode("password"));
+    User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
     Token verificationToken = createTestToken(TEST_TOKEN, TokenType.EMAIL_VERIFICATION);
@@ -165,7 +165,7 @@ public class AuthControllerTest {
     tokenRepository.save(verificationToken);
 
     ResponseEntity<ErrorResponse> result =  restTemplate.exchange(
-      BASE_URL + "/verify-email?email=peter@dev.in&token=000000",
+      BASE_URL + "/verify-email?email=peter@test.in&token=000000",
       HttpMethod.POST,
       new HttpEntity<>(null),
       ErrorResponse.class
@@ -176,7 +176,7 @@ public class AuthControllerTest {
 
   @Test 
   void shouldReturn_notFound_onVerifyUserEmail_ifInvalidUser() {
-    User user = createTestUser("peter@dev.in", passwordEncoder.encode("password"));
+    User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
     Token verificationToken = createTestToken(TEST_TOKEN, TokenType.EMAIL_VERIFICATION);
@@ -185,7 +185,7 @@ public class AuthControllerTest {
     tokenRepository.save(verificationToken);
 
     ResponseEntity<ErrorResponse> result =  restTemplate.exchange(
-      BASE_URL + "/verify-email?email=louis@dev.in&token=000000",
+      BASE_URL + "/verify-email?email=louis@test.in&token=000000",
       HttpMethod.POST,
       new HttpEntity<>(null),
       ErrorResponse.class
@@ -196,7 +196,7 @@ public class AuthControllerTest {
 
   @Test
   void shouldRenewToken() {
-    User user = createTestUser("peter@dev.in", passwordEncoder.encode("password"));
+    User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
     Token verificationToken = createTestToken(TEST_TOKEN, TokenType.EMAIL_VERIFICATION);
@@ -205,7 +205,7 @@ public class AuthControllerTest {
     tokenRepository.save(verificationToken);
 
     ResponseEntity<Map<String, Boolean>> result =  restTemplate.exchange(
-      BASE_URL + "/renew-token?email=peter@dev.in",
+      BASE_URL + "/renew-token?email=peter@test.in",
       HttpMethod.POST,
       new HttpEntity<>(null),
       new ParameterizedTypeReference<Map<String, Boolean>>() {}
@@ -216,12 +216,12 @@ public class AuthControllerTest {
 
   @Test
   void shouldReturn_badRequest_onRenewToken_ifUserIsAlreadyVerify() {
-    User user = createTestUser("peter@dev.in", passwordEncoder.encode("password"));
+    User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user.setVerify(true);
     user = userRepository.save(user);
 
     ResponseEntity<ErrorResponse> result =  restTemplate.exchange(
-      BASE_URL + "/renew-token?email=peter@dev.in",
+      BASE_URL + "/renew-token?email=peter@test.in",
       HttpMethod.POST,
       new HttpEntity<>(null),
       ErrorResponse.class
@@ -232,7 +232,7 @@ public class AuthControllerTest {
 
   @Test
   void shouldReturn_notFound_onRenewToken_ifUserIsInvalid() {
-    User user = createTestUser("peter@dev.in", passwordEncoder.encode("password"));
+    User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
     Token verificationToken = createTestToken(TEST_TOKEN, TokenType.EMAIL_VERIFICATION);
@@ -241,7 +241,7 @@ public class AuthControllerTest {
     tokenRepository.save(verificationToken);
 
     ResponseEntity<ErrorResponse> result =  restTemplate.exchange(
-      BASE_URL + "/renew-token?email=louis@dev.in",
+      BASE_URL + "/renew-token?email=louis@test.in",
       HttpMethod.POST,
       new HttpEntity<>(null),
       ErrorResponse.class
@@ -252,11 +252,11 @@ public class AuthControllerTest {
 
   @Test
   void shouldAuthenticateUser() {
-    User user = createTestUser("peter@dev.in", passwordEncoder.encode("password"));
+    User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user.setVerify(true);
     user = userRepository.save(user);
 
-    final AuthRequest request = new AuthRequest("peter@dev.in", "password");
+    final AuthRequest request = new AuthRequest("peter@test.in", "password");
 
     ResponseEntity<AuthResponse> result =  restTemplate.exchange(
       BASE_URL + "/login",
@@ -272,10 +272,10 @@ public class AuthControllerTest {
 
   @Test
   void shouldThrow_badRequest_whenAuthenticateUser_isNotVerified() {
-    User user = createTestUser("peter@dev.in", passwordEncoder.encode("password"));
+    User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
-    final AuthRequest request = new AuthRequest("peter@dev.in", "password");
+    final AuthRequest request = new AuthRequest("peter@test.in", "password");
 
     ResponseEntity<ErrorResponse> result =  restTemplate.exchange(
       BASE_URL + "/login",
@@ -289,10 +289,10 @@ public class AuthControllerTest {
 
   @Test
   void shouldThrow_forbidden_whenAuthenticateUser_onInvalidCred() {
-    User user = createTestUser("peter@dev.in", passwordEncoder.encode("password"));
+    User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
-    final AuthRequest request = new AuthRequest("louis@dev.in", "password");
+    final AuthRequest request = new AuthRequest("louis@test.in", "password");
 
     ResponseEntity<ErrorResponse> result =  restTemplate.exchange(
       BASE_URL + "/login",
@@ -306,11 +306,11 @@ public class AuthControllerTest {
 
   @Test
   void shouldRefreshJwtToken() {
-    User user = createTestUser("peter@dev.in", passwordEncoder.encode("password"));
+    User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user.setVerify(true);
     user = userRepository.save(user);
     
-    final AuthRequest request = new AuthRequest("peter@dev.in", "password");
+    final AuthRequest request = new AuthRequest("peter@test.in", "password");
 
     AuthResponse auth =  restTemplate.exchange(
       BASE_URL + "/login",

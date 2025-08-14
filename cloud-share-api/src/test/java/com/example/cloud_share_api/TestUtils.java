@@ -11,8 +11,8 @@ public class TestUtils {
   /*
    * User
    */
-  public static final String PETER_USERNAME = "peter@dev.in";
-  public static final String LOUIS_USERNAME = "louis@dev.in";
+  public static final String PETER_USERNAME = "peter@test.in";
+  public static final String LOUIS_USERNAME = "louis@test.in";
   
   public static User createTestUser(String username) {
     return createTestUser(username, "password");
@@ -43,15 +43,15 @@ public class TestUtils {
   /*
    * File
    */
-  public static File createFile(String uuid) {
+  public static File createFile(String fileUuid) {
     return File.builder()
-      .uuid(uuid)
-      .name("test.txt")
-      .type("TEXT/TEXT")
-      .size(20L)
-      .uploadedAt(Instant.now())
+      .uuid(fileUuid)
+      .name("testfile.txt")
+      .type("text/plain")
+      .size(1234L)
       .isPublic(false)
-      .location("/test/resource/test.txt")
+      .location("uploads/testfile.txt")
+      .uploadedAt(Instant.now())
       .build();
   }
 }

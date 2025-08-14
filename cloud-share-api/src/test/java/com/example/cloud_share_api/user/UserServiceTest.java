@@ -25,20 +25,23 @@ public class UserServiceTest {
   private UserRepository userRepository;
 
   private UserService userService;
+  
+  private User user;
 
   @BeforeEach
   void setup() {
+    user = createTestUser(PETER_USERNAME);
     userService = new UserService(userRepository);
   }
 
   @AfterEach
   void purge() {
+    user = null;
     userService = null;
   }
 
   @Test
   void shoulReturn_userDetails_onLoadUser_ifUserExists() {
-    final User user = createTestUser(PETER_USERNAME);
     user.setId(101L);
 
     final String username = PETER_USERNAME;
@@ -48,17 +51,18 @@ public class UserServiceTest {
     
     final UserDetails result = userService.loadUserByUsername(username);
 
+    Assertions.assertThat(result).isNotNull();
+    Assertions.assertThat(result.getUsername()).isEqualTo(username);
+    
     verify(userRepository, times(1))
       .findByEmail(eq(PETER_USERNAME));
-    Assertions.assertThat(result).isNotNull();
   }
 
   @Test
   void shoulThrow_exception_onLoadUser_ifUserNotExists() {
     final String username = PETER_USERNAME;
     
-    when(userRepository.findByEmail(username))
-      .thenReturn(Optional.empty());
+    when(userRepository.findByEmail(username)).thenReturn(Optional.empty());
     
     Assertions.assertThatThrownBy(() -> userService.loadUserByUsername(username))
       .isInstanceOf(UsernameNotFoundException.class);
