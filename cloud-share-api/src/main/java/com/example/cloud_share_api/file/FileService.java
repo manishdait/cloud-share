@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -30,6 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 public class FileService {
   private final UserRepository userRepository;
   private final FileRepository fileRepository;
+
+  @Value("${spring.application.file.upload-dir}")
+  private String uploadDir;
   
   @Transactional
   public List<FileDto> uploadFile(List<MultipartFile> fileRequest, Authentication authentication) {
@@ -121,7 +125,7 @@ public class FileService {
     return file;
   }
 
-  public File downloadFile(String uuid, Authentication authentication) {
+    public File downloadFile(String uuid, Authentication authentication) {
     User user = (User) authentication.getPrincipal();
     File file = findByUUID(uuid);
 
@@ -135,7 +139,7 @@ public class FileService {
   private List<File> handleFileUpload(User user, List<MultipartFile> files) {
     List<File> list = new ArrayList<>();
 
-    Path uploadPath = Paths.get("uploads").toAbsolutePath().normalize();
+    Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
 
     try {
       Files.createDirectories(uploadPath);

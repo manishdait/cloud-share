@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../service/auth.service';
 import { RegistrationRequest } from '../../types/auth.type';
+import { sign } from 'crypto';
 
 @Component({
   selector: 'app-register',
@@ -16,6 +17,7 @@ export class RegisterComponent {
 
   formError = signal(false);
 
+  loading = signal(false);
   form: FormGroup;
 
   constructor () {
@@ -44,13 +46,18 @@ export class RegisterComponent {
       email: this.form.get('email')!.value,
       password: this.form.get('password')!.value
     }
+    this.form.disable();
 
+    this.loading.set(true);
     this.authService.registerUser(request).subscribe({
       next: () => {
+        this.form.enable();
+        this.loading.set(false);
         this.router.navigate(['/verify-email'], {replaceUrl: true, queryParams: {email: request.email}});
       },
       error: (err) => {
-
+        this.form.enable();
+        this.loading.set(false);
       }
     })
   }

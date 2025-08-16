@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../service/auth.service';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthRequest } from '../../types/auth.type';
+import { sign } from 'crypto';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,7 @@ export class LoginComponent {
   formError = signal(false);
 
   form: FormGroup;
+  loading = signal(false);
 
   constructor () {
     this.form = new FormGroup({
@@ -40,12 +42,18 @@ export class LoginComponent {
       email: this.form.get('email')!.value,
       password: this.form.get('password')!.value
     };
-
+    this.form.disable();
+    
+    this.loading.set(true);
     this.authService.authenticateUser(request).subscribe({
       next: (res) => {
+        this.form.enable();
+        this.loading.set(false);
         this.router.navigate(["/dashboard/me"]);
       },
       error: (err) => {
+        this.form.enable();
+        this.loading.set(false);
         if (err.status === 400) {
           this.router.navigate(["/verify-email"], {queryParams: {email: request.email}});
         }

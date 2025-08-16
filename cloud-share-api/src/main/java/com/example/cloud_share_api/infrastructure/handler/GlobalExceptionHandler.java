@@ -8,8 +8,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.example.cloud_share_api.infrastructure.exceptions.AccessDeniedException;
 import com.example.cloud_share_api.infrastructure.exceptions.DuplicateEntityException;
 import com.example.cloud_share_api.infrastructure.exceptions.ExpiredTokenException;
+import com.example.cloud_share_api.infrastructure.exceptions.InsufficentCreditException;
 import com.example.cloud_share_api.infrastructure.exceptions.InvalidTokenException;
 import com.example.cloud_share_api.infrastructure.exceptions.TokenAlreadyUsedException;
 
@@ -20,7 +22,14 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-  @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class, InvalidTokenException.class, TokenAlreadyUsedException.class, ExpiredTokenException.class})
+  @ExceptionHandler({
+    IllegalArgumentException.class, 
+    IllegalStateException.class, 
+    InvalidTokenException.class, 
+    TokenAlreadyUsedException.class, 
+    ExpiredTokenException.class, 
+    InsufficentCreditException.class
+  })
   public ResponseEntity<ErrorResponse> handleBadRequest(Exception e, HttpServletRequest request) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
       new ErrorResponse(
@@ -46,13 +55,16 @@ public class GlobalExceptionHandler {
     );
   }
 
-  @ExceptionHandler(BadCredentialsException.class)
-  public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException e, HttpServletRequest request) {
+  @ExceptionHandler({
+    BadCredentialsException.class, 
+    AccessDeniedException.class
+  })
+  public ResponseEntity<ErrorResponse> handleBadCredentials(Exception e, HttpServletRequest request) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
       new ErrorResponse(
         Instant.now(), 
         HttpStatus.FORBIDDEN.value(), 
-        "Invalid Credentials", 
+        "Forbidden", 
         e.getMessage(), 
         request.getRequestURI()
       )
@@ -72,13 +84,16 @@ public class GlobalExceptionHandler {
     );
   } 
 
-  @ExceptionHandler({JwtException.class, ExpiredJwtException.class})
+  @ExceptionHandler({
+    JwtException.class, 
+    ExpiredJwtException.class
+  })
   public ResponseEntity<ErrorResponse> handleJwtException(Exception e, HttpServletRequest request) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
       new ErrorResponse(
         Instant.now(), 
         HttpStatus.UNAUTHORIZED.value(),
-        "JWT Exception",
+        "Unauthorize",
         e.getMessage(),
         request.getRequestURI()
       )

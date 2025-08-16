@@ -24,6 +24,11 @@
       "name": "razorpay.api-key",
       "type": "java.lang.String",
       "description": "RazorPay Api key"
+    },
+    {
+      "name": "spring.application.file.upload-dir",
+      "type": "java.lang.String",
+      "description": "Folder to save uploaded files"
     }
   ]
 }

@@ -1,8 +1,6 @@
 package com.example.cloud_share_api.user;
 
-import static com.example.cloud_share_api.TestUtils.PETER_USERNAME;
 import static com.example.cloud_share_api.TestUtils.createTestUser;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,7 +28,7 @@ public class UserServiceTest {
 
   @BeforeEach
   void setup() {
-    user = createTestUser(PETER_USERNAME);
+    user = createTestUser("user@test.in", "password"); 
     userService = new UserService(userRepository);
   }
 
@@ -41,30 +39,26 @@ public class UserServiceTest {
   }
 
   @Test
-  void shoulReturn_userDetails_onLoadUser_ifUserExists() {
-    user.setId(101L);
-
-    final String username = PETER_USERNAME;
-    
-    when(userRepository.findByEmail(username))
-      .thenReturn(Optional.of(user));
-    
+  void shouldReturnUserDetails_whenUserExists() {
+    final String username = "user@test.in";
+    when(userRepository.findByEmail(username)).thenReturn(Optional.of(user));
+  
     final UserDetails result = userService.loadUserByUsername(username);
 
     Assertions.assertThat(result).isNotNull();
     Assertions.assertThat(result.getUsername()).isEqualTo(username);
     
-    verify(userRepository, times(1))
-      .findByEmail(eq(PETER_USERNAME));
+    verify(userRepository, times(1)).findByEmail(username);
   }
 
   @Test
-  void shoulThrow_exception_onLoadUser_ifUserNotExists() {
-    final String username = PETER_USERNAME;
-    
+  void shouldThrowUsernameNotFoundException_whenUserDoesNotExist() {
+    final String username = "anotheruser@test.in";
     when(userRepository.findByEmail(username)).thenReturn(Optional.empty());
     
     Assertions.assertThatThrownBy(() -> userService.loadUserByUsername(username))
       .isInstanceOf(UsernameNotFoundException.class);
+    
+    verify(userRepository, times(1)).findByEmail(username);
   }
 }

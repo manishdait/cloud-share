@@ -1,6 +1,8 @@
 spring:
   application:
     client: ${CLIENT_ADDRESS:http://localhost:4200}
+    file:
+      upload-dir: ${UPLOAD_DIR:uploads}
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/cloud_share_db}
     username: ${DATABASE_USERNAME:postgres}

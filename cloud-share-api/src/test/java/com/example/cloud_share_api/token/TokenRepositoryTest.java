@@ -1,8 +1,5 @@
 package com.example.cloud_share_api.token;
 
-import static com.example.cloud_share_api.TestUtils.LOUIS_USERNAME;
-import static com.example.cloud_share_api.TestUtils.PETER_USERNAME;
-import static com.example.cloud_share_api.TestUtils.TEST_TOKEN;
 import static com.example.cloud_share_api.TestUtils.createTestToken;
 import static com.example.cloud_share_api.TestUtils.createTestUser;
 
@@ -40,12 +37,13 @@ public class TokenRepositoryTest {
   @Autowired
   private TokenRepository tokenRepository;
 
+  private static final String TEST_TOKEN = "TOKEN3";
   private User user;
 
   @BeforeEach
   void setup() {
-    user = userRepository.save(createTestUser(PETER_USERNAME));
-
+    user = userRepository.save(createTestUser("user@test.in", "password"));
+    
     Token token = createTestToken(TEST_TOKEN, TokenType.EMAIL_VERIFICATION);
     token.setUser(user);
     tokenRepository.save(token);
@@ -58,18 +56,19 @@ public class TokenRepositoryTest {
   }
 
   @Test
-  void canEstablishConncection() {
+  void shouldConnectToDatabase() {
     Assertions.assertThat(psqlContainer.isCreated());
     Assertions.assertThat(psqlContainer.isRunning());
   }
 
   @Test
-  void prePersist_shouldGenerate_andSaveToken_ifTokenIsNull() {
+  void shouldGenerateToken_whenTokenIsNull() {
     final Token token = Token.builder()
       .user(user)
       .type(TokenType.EMAIL_VERIFICATION)
       .expiration(Instant.now().plusSeconds(3600))
       .build();
+
     final Token result = tokenRepository.save(token);
     
     Assertions.assertThat(result.getToken()).isNotNull();
@@ -77,79 +76,65 @@ public class TokenRepositoryTest {
   }
 
   @Test
-  void prePersist_shouldNotGenerateToken_ifTokenIsNotNull() {
-    final String _token = "000000";
-    final Token token = Token.builder()
-      .token(_token)
-      .user(user)
-      .type(TokenType.EMAIL_VERIFICATION)
-      .expiration(Instant.now().plusSeconds(3600))
-      .build();
+  void shouldNotGenerateToken_whenTokenIsProvided() {
+    final Token token = createTestToken("000000", TokenType.EMAIL_VERIFICATION);
+    token.setUser(user);
+    
     final Token result = tokenRepository.save(token);
     
     Assertions.assertThat(result.getToken()).isNotNull();
-    Assertions.assertThat(result.getToken()).isEqualTo(_token);
+    Assertions.assertThat(result.getToken()).isEqualTo("000000");
   }
 
   @Test
-  void shouldReturn_tokenOptional_ifTokenExists_withTokenAndType() {
+  void shouldFindToken_whenTokenAndTypeExist() {
     final String token = TEST_TOKEN;
     final TokenType type = TokenType.EMAIL_VERIFICATION;
     final Optional<Token> result = tokenRepository.findByTokenAndType(token, type);
 
     Assertions.assertThat(result).isPresent();
+    Assertions.assertThat(result.get().getToken()).isEqualTo(TEST_TOKEN);
   }
 
   @Test
-  void shouldReturn_emptyOptional_ifTokenNotExists_withTokenOrType() {
-    final String token1 = TEST_TOKEN;
-    final String token2 = "000000";
-
-    final TokenType type1 = TokenType.EMAIL_VERIFICATION;
-    final TokenType type2 = TokenType.RESET_PASSWORD;
-
-    // TokenType not exists
-    final Optional<Token> result1 = tokenRepository.findByTokenAndType(token1, type2);
+  void shouldReturnEmptyOptional_whenTokenDoesNotExist() {
+    // Wrong Token
+    final Optional<Token> result1 = tokenRepository.findByTokenAndType("invalid-test-token", TokenType.EMAIL_VERIFICATION);
     Assertions.assertThat(result1).isEmpty();
 
-    // Token not exists
-    final Optional<Token> result2 = tokenRepository.findByTokenAndType(token2, type1);
+    // Wrong Token Type
+    final Optional<Token> result2 = tokenRepository.findByTokenAndType(TEST_TOKEN, TokenType.RESET_PASSWORD);
     Assertions.assertThat(result2).isEmpty();
 
-    // Both not exists
-    final Optional<Token> result3 = tokenRepository.findByTokenAndType(token2, type2);
+    // Wrong Token and Token Type
+    final Optional<Token> result3 = tokenRepository.findByTokenAndType("invalid-test-token", TokenType.RESET_PASSWORD);
     Assertions.assertThat(result3).isEmpty();
   }
 
   @Test
-  void shouldReturn_tokenList_ifTokensExists_forUserAndType() {
-    final User _user = user;
+  void shouldReturnTokenList_whenTokensExistForUserAndType() {
     final TokenType type = TokenType.EMAIL_VERIFICATION;
-    final List<Token> result = tokenRepository.findByUserAndType(_user, type);
+    final List<Token> result = tokenRepository.findByUserAndType(user, type);
 
     Assertions.assertThat(result).isNotEmpty();
     Assertions.assertThat(result).hasSize(1);
   }
 
   @Test
-  void shouldReturn_emptyTokenList_ifTokensNotExists_forUserOrType() {
-    final User user1 = user;
-    final User user2 = createTestUser(LOUIS_USERNAME);
-    user2.setId(200L);
+  void shouldReturnEmptyList_whenNoTokensExistForUserOrType() {
+    final User anotherUser = createTestUser("anotheruser@test.in", "password");
+    anotherUser.setId(1L);
 
-    final TokenType type1 = TokenType.EMAIL_VERIFICATION;
-    final TokenType type2 = TokenType.RESET_PASSWORD;
-
-    // TokenType not exists
-    final List<Token> result1 = tokenRepository.findByUserAndType(user1, type2);
+    // No token with token type exists
+    final List<Token> result1 = tokenRepository.findByUserAndType(user, TokenType.RESET_PASSWORD);
     Assertions.assertThat(result1).isEmpty();
 
-    // User not exists
-    final List<Token> result2 = tokenRepository.findByUserAndType(user2, type1);
+    // No token with user exists
+    final List<Token> result2 = tokenRepository.findByUserAndType(anotherUser, TokenType.EMAIL_VERIFICATION);
     Assertions.assertThat(result2).isEmpty();
 
-    // Both not exists
-    final List<Token> result3 = tokenRepository.findByUserAndType(user2, type2);
+    // No token exists for both user and token type
+    final List<Token> result3 = tokenRepository.findByUserAndType(anotherUser, TokenType.RESET_PASSWORD);
     Assertions.assertThat(result3).isEmpty();
   }
 }

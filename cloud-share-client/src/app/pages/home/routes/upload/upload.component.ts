@@ -17,6 +17,8 @@ export class UploadComponent {
   dragging = signal(false);
   files = signal<File[]>([]);
 
+  loading = signal(false);
+
   constructor(private store: Store<AppState>) {
   }
 
@@ -74,10 +76,15 @@ export class UploadComponent {
       formData.append('files', file, file.name);
     }
 
+    this.loading.set(true);
     this.filesService.uploadFiles(formData).subscribe({
       next: (res) => {
+        this.loading.set(false);
         this.store.dispatch(addFiles({files: res}));
         this.files.set([]);
+      },
+      error: (err) => {
+        this.loading.set(false);
       }
     })
   }

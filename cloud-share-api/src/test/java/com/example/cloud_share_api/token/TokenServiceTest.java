@@ -1,7 +1,5 @@
 package com.example.cloud_share_api.token;
 
-import static com.example.cloud_share_api.TestUtils.PETER_USERNAME;
-import static com.example.cloud_share_api.TestUtils.TEST_TOKEN;
 import static com.example.cloud_share_api.TestUtils.createTestToken;
 import static com.example.cloud_share_api.TestUtils.createTestUser;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,19 +38,24 @@ public class TokenServiceTest {
   @Captor
   private ArgumentCaptor<Token> tokenCaptor;
 
+  private User user;
+
+  private static final String MOCK_TOKEN_STRING = "TOKEN0";
+
   @BeforeEach
   void setup() {
+    user = createTestUser("user@test.in", "password");
     tokenService = new TokenService(tokenRepository);
   }
 
   @AfterEach
   void purge() {
+    user = null;
     tokenService = null;
   }
 
   @Test
-  void shouldRetrun_tokenString_whenCallGenerateToken() {
-    final User user = createTestUser(PETER_USERNAME);
+  void shouldGenerateAndReturnToken_whenCalled() {
     final TokenType type = TokenType.EMAIL_VERIFICATION;
 
     when(tokenRepository.save(any(Token.class))).thenAnswer((invocation) -> {
@@ -62,120 +65,102 @@ public class TokenServiceTest {
     });
 
     final String result = tokenService.generateToken(user, type);
-    verify(tokenRepository, times(1)).save(tokenCaptor.capture());
-
     Assertions.assertThat(result).isNotNull();
     Assertions.assertThat(result).hasSize(6);
+   
+    verify(tokenRepository, times(1)).save(tokenCaptor.capture());
 
     final Token capture = tokenCaptor.getValue();
-
     Assertions.assertThat(capture).isNotNull();
     Assertions.assertThat(capture.getType()).isEqualTo(type);
     Assertions.assertThat(capture.getUser()).isEqualTo(user);
     Assertions.assertThat(capture.isUsed()).isFalse();
-    Assertions.assertThat(capture.getUsedAt()).isNull();
+    Assertions.assertThat(capture.getUsedAt()).isNull();    
   }
 
   @Test
-  void shouldNotThrowException_onValidatingToken() {
-    final Token mockToken = createTestToken(TEST_TOKEN, TokenType.EMAIL_VERIFICATION);
-    
-    final User user = createTestUser(PETER_USERNAME);
+  void shouldValidateTokenSuccessfully_whenTokenIsValid() {
+    final Token mockToken = createTestToken(MOCK_TOKEN_STRING, TokenType.EMAIL_VERIFICATION);
     mockToken.setUser(user);
 
     final TokenType type = TokenType.EMAIL_VERIFICATION;
-    final String token = TEST_TOKEN;
 
-    when(tokenRepository.findByTokenAndType(eq(token), eq(type)))
-      .thenReturn(Optional.of(mockToken));
+    when(tokenRepository.findByTokenAndType(eq(MOCK_TOKEN_STRING), eq(type))).thenReturn(Optional.of(mockToken));
     
-      tokenService.validateToken(token, type, user);
+    tokenService.validateToken(MOCK_TOKEN_STRING, type, user);
     
-    verify(tokenRepository, times(1))
-      .findByTokenAndType(eq(token), eq(type));
-    verify(tokenRepository, times(1)).save(any(Token.class));
-
     Assertions.assertThat(mockToken.getUsedAt()).isNotNull();
     Assertions.assertThat(mockToken.isUsed()).isTrue();
+    
+    verify(tokenRepository, times(1)).findByTokenAndType(eq(MOCK_TOKEN_STRING), eq(type));
+    verify(tokenRepository, times(1)).save(any(Token.class));
   }
 
   @Test
-  void shouldThrowException_onValidatingToken_IfTokenExpired() {
+  void shouldThrowExpiredTokenException_whenTokenIsExpired() {
     final Token mockToken = Mockito.mock(Token.class);
 
-    final User user = createTestUser(PETER_USERNAME);
     final TokenType type = TokenType.EMAIL_VERIFICATION;
-    final String token = TEST_TOKEN;
-
-    when(tokenRepository.findByTokenAndType(eq(token), eq(type)))
-      .thenReturn(Optional.of(mockToken));
+    when(tokenRepository.findByTokenAndType(eq(MOCK_TOKEN_STRING), eq(type))).thenReturn(Optional.of(mockToken));
     when(mockToken.getUser()).thenReturn(user);
     when(mockToken.isUsed()).thenReturn(false);
     when(mockToken.isExpired()).thenReturn(true);
 
-    Assertions.assertThatThrownBy(() -> tokenService.validateToken(token, type, user))
+    Assertions.assertThatThrownBy(() -> tokenService.validateToken(MOCK_TOKEN_STRING, type, user))
       .isInstanceOf(ExpiredTokenException.class);
+
+    verify(tokenRepository, times(1)).findByTokenAndType(eq(MOCK_TOKEN_STRING), eq(type));
   }
 
   @Test
-  void shouldThrowException_onValidatingToken_IfAlreadyUsed() {
+  void  shouldThrowTokenAlreadyUsedException_whenTokenIsAlreadyUsed() {
     final Token mockToken = Mockito.mock(Token.class);
 
-    final User user = createTestUser(PETER_USERNAME);
     final TokenType type = TokenType.EMAIL_VERIFICATION;
-    final String token = TEST_TOKEN;
-
-    when(tokenRepository.findByTokenAndType(eq(token), eq(type)))
-      .thenReturn(Optional.of(mockToken));
+    when(tokenRepository.findByTokenAndType(eq(MOCK_TOKEN_STRING), eq(type))).thenReturn(Optional.of(mockToken));
     when(mockToken.getUser()).thenReturn(user);
     when(mockToken.isUsed()).thenReturn(true);
 
-    Assertions.assertThatThrownBy(() -> tokenService.validateToken(token, type, user))
+    Assertions.assertThatThrownBy(() -> tokenService.validateToken(MOCK_TOKEN_STRING, type, user))
       .isInstanceOf(TokenAlreadyUsedException.class);
+    
+    verify(tokenRepository, times(1)).findByTokenAndType(eq(MOCK_TOKEN_STRING), eq(type));
   }
 
   @Test
-  void shouldThrowException_onValidatingToken_IfHasInvalidUser() {
+  void shouldThrowInvalidTokenException_whenTokenBelongsToDifferentUser() {
     final Token mockToken = Mockito.mock(Token.class);
-    final User mockUser = Mockito.mock(User.class);
+    final User mockUser = createTestUser("anotheruser@test.in", "password");
 
-    final User user = createTestUser(PETER_USERNAME);
     final TokenType type = TokenType.EMAIL_VERIFICATION;
-    final String token = TEST_TOKEN;
-
-    when(tokenRepository.findByTokenAndType(eq(token), eq(type)))
-      .thenReturn(Optional.of(mockToken));
+    when(tokenRepository.findByTokenAndType(eq(MOCK_TOKEN_STRING), eq(type))).thenReturn(Optional.of(mockToken));
     when(mockToken.getUser()).thenReturn(mockUser);
-    when(mockUser.getUsername()).thenReturn("mockUser@test.in");
 
-    Assertions.assertThatThrownBy(() -> tokenService.validateToken(token, type, user))
+    Assertions.assertThatThrownBy(() -> tokenService.validateToken(MOCK_TOKEN_STRING, type, user))
       .isInstanceOf(InvalidTokenException.class);
+
+    verify(tokenRepository, times(1)).findByTokenAndType(eq(MOCK_TOKEN_STRING), eq(type));
   }
 
   @Test
-  void shouldThrowException_onValidatingToken_ForInvalidToken() {
-    final User user = createTestUser(PETER_USERNAME);
+  void shouldThrowInvalidException_whenTokenNotExists() {
     final TokenType type = TokenType.EMAIL_VERIFICATION;
-    final String token = TEST_TOKEN;
-
-    when(tokenRepository.findByTokenAndType(eq(token), eq(type)))
-      .thenReturn(Optional.empty());
+    final String token = "000000";
+    when(tokenRepository.findByTokenAndType(eq(token), eq(type))).thenReturn(Optional.empty());
 
     Assertions.assertThatThrownBy(() -> tokenService.validateToken(token, type, user))
       .isInstanceOf(InvalidTokenException.class);
+    
+    verify(tokenRepository, times(1)).findByTokenAndType(eq(token), eq(type));
   }
 
   @Test 
-  void shouldReturn_tokenString_andMarkPreviousToken_onRenewToken() {
-    final Token mockToken = createTestToken(TEST_TOKEN, TokenType.EMAIL_VERIFICATION);
-
-    final User user = createTestUser(PETER_USERNAME);
+  void shouldGenerateNewToken_andInvalidateOldToken_onRenewTokenCall() {
+    final Token mockToken = createTestToken(MOCK_TOKEN_STRING, TokenType.EMAIL_VERIFICATION);
     mockToken.setUser(user);
 
     final TokenType type = TokenType.EMAIL_VERIFICATION;
-
-    when(tokenRepository.findByUserAndType(user, type))
-      .thenReturn(List.of(mockToken));
+    when(tokenRepository.findByUserAndType(user, type)).thenReturn(List.of(mockToken));
     when(tokenRepository.save(any(Token.class))).thenAnswer((invocation) -> {
       Token tokenToSave = invocation.getArgument(0);
       tokenToSave.generateToken();
@@ -183,25 +168,17 @@ public class TokenServiceTest {
     });
 
     String result = tokenService.renewToken(user, type);
-
-    verify(tokenRepository, times(1)).findByUserAndType(user, type);
-    verify(tokenRepository, times(1)).saveAll(anyList());
-
     Assertions.assertThat(result).isNotNull();
     Assertions.assertThat(result).hasSize(6);
-
-    Assertions.assertThat(mockToken.getUsedAt()).isNotNull();
-    Assertions.assertThat(mockToken.isUsed()).isTrue();
+    
+    verify(tokenRepository, times(1)).findByUserAndType(user, type);
+    verify(tokenRepository, times(1)).saveAll(anyList());
   }
 
   @Test 
-  void shouldReturn_tokenString_withoutMarking_IfHasNoPreviousToken_onRenewToken() {
-    final User user = createTestUser(PETER_USERNAME);
+  void shouldGenerateNewTokenString_withoutPreviousTokenExists() {
     final TokenType type = TokenType.EMAIL_VERIFICATION;
-
-    when(tokenRepository.findByUserAndType(user, type))
-      .thenReturn(List.of());
-
+    when(tokenRepository.findByUserAndType(user, type)).thenReturn(List.of());
     when(tokenRepository.save(any(Token.class))).thenAnswer((invocation) -> {
       Token tokenToSave = invocation.getArgument(0);
       tokenToSave.generateToken();
@@ -209,11 +186,10 @@ public class TokenServiceTest {
     });
 
     String result = tokenService.renewToken(user, type);
-
-    verify(tokenRepository, times(1)).findByUserAndType(user, type);
-    verify(tokenRepository, times(0)).saveAll(anyList());
-
     Assertions.assertThat(result).isNotNull();
     Assertions.assertThat(result).hasSize(6);
+    
+    verify(tokenRepository, times(0)).saveAll(anyList());
+    verify(tokenRepository, times(1)).findByUserAndType(user, type);
   }
 }

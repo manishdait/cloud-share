@@ -1,12 +1,11 @@
 package com.example.cloud_share_api.file;
 
-import static com.example.cloud_share_api.TestUtils.LOUIS_USERNAME;
-import static com.example.cloud_share_api.TestUtils.PETER_USERNAME;
 import static com.example.cloud_share_api.TestUtils.createFile;
 import static com.example.cloud_share_api.TestUtils.createTestUser;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -39,12 +38,14 @@ public class FileRepositoryTest {
   private FileRepository fileRepository;
 
   private User user;
+  private String fileUUID;
 
   @BeforeEach
   void setup() {
-    user = userRepository.save(createTestUser(PETER_USERNAME));
+    user = userRepository.save(createTestUser("user@test.in", "password"));
     
-    File file = createFile("uuid");
+    fileUUID = UUID.randomUUID().toString();
+    File file = createFile(fileUUID);
     file.setUser(user);
 
     fileRepository.save(file);
@@ -57,38 +58,38 @@ public class FileRepositoryTest {
   }
 
   @Test
-  void canEstablishConncection() {
+  void shouldConnectToDatabase() {
     Assertions.assertThat(psqlContainer.isCreated());
     Assertions.assertThat(psqlContainer.isRunning());
   }
 
   @Test
-  void shouldReturn_fileOptional_ifFileExistsWithUUID() {
-    final String uuid = "uuid";
+  void shouldFindFileByUuid_whenFileExists() {
+    final String uuid = fileUUID;
     final Optional<File> result = fileRepository.findByUuid(uuid);
     Assertions.assertThat(result).isPresent();
   }
 
   @Test
-  void shouldReturn_emptyOptional_ifFileNotExistsWithUUID() {
+  void shouldReturnEmptyOptional_whenFileDoesNotExist() {
     final String uuid = "random-uuid";
     final Optional<File> result = fileRepository.findByUuid(uuid);
     Assertions.assertThat(result).isEmpty();
   }
 
   @Test
-  void shouldReturn_fileList_ifFileExistsWithUser() {
-    final User _user = user;
-    final List<File> result = fileRepository.findByUser(_user);
+  void shouldFindAllFilesByUser_whenFilesExist() {
+    final List<File> result = fileRepository.findByUser(user);
     Assertions.assertThat(result).isNotNull();
     Assertions.assertThat(result).hasSize(1);
   }
 
   @Test
-  void shouldReturn_emptyFileList_ifFileNotExistsWithUser() {
-    final User _user = createTestUser(LOUIS_USERNAME);
-    _user.setId(300L);
-    final List<File> result = fileRepository.findByUser(_user);
+  void shouldReturnEmptyList_whenNoFilesExistForUser() {
+    final User user = createTestUser("anotheruser@test.in", "password");
+    user.setId(1L);
+
+    final List<File> result = fileRepository.findByUser(user);
     Assertions.assertThat(result).isNotNull();
     Assertions.assertThat(result).isEmpty();
   }

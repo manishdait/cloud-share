@@ -1,1 +1,24 @@
-<p>transactions works!</p>
+<div class="flex flex-col gap-8">
+  <h1 class="text-[1.5rem] font-medium text-neutral-800">Transactions</h1>
+
+  <section class="flex flex-col gap-2 bg-white p-4 shadow-sm rounded-lg">
+    @if (transactions().length == 0) {
+      <span>No transaction Done</span>
+    } @else {
+      <ul>
+        @for (transaction of transactions(); track transaction.id) {
+          <li class="py-4 not-last:border-b-[.1em] not-last:border-neutral-300">
+            <div class="flex flex-col gap-1 text-neutral-800">
+              <span class="font-medium text-purple-600 text-[1rem]">{{ transaction.plan }} &nbsp;&nbsp; <span class="text-neutral-800 text-[1.5rem]">{{ '₹' + transaction.amount }}</span></span>
+              <span class="text-[1rem] text-neutral-500 break-words">
+                <span>{{ parseDate(transaction.timestamp) }}</span>  &nbsp;|&nbsp; 
+                <span>{{ transaction.id? '#' + transaction.id : '' }}</span> &nbsp; 
+                <span class="text-[.8rem] px-2 py-1 rounded-[2rem]" [class]="{'bg-green-100': transaction.status === 'SUCCESS', 'text-green-600': transaction.status === 'SUCCESS', 'bg-red-100': transaction.status === 'FAIL', 'text-red-600': transaction.status === 'FAIL'}">{{ transaction.status }}</span>
+              </span>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

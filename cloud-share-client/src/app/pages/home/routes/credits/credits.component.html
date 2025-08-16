@@ -17,14 +17,14 @@
     <section class="flex flex-col gap-1 bg-white p-4 shadow-sm rounded-lg">
       <span class="text-[1rem] font-medium">Premium</span>
       <span class="text-[2rem] font-semibold">₹500 <span class="text-[1rem] font-normal">for 500 credits.</span></span>
-      <button class="min-w-[150px] w-auto border-[.1em] border-purple-600 bg-white text-[1rem] text-purple-600 font-medium py-1 px-2 rounded-md cursor-pointer transition-all hover:bg-purple-100">Purchase Plan</button>
+      <button class="min-w-[150px] w-auto border-[.1em] border-purple-600 bg-white text-[1rem] text-purple-600 font-medium py-1 px-2 rounded-md cursor-pointer transition-all hover:bg-purple-100" (click)="purchase('PREMIUM')">Purchase Plan</button>
     </section>
 
     <section class="flex flex-col gap-1 bg-white p-4 shadow-sm rounded-lg">
       <span class="bg-purple-100 text-purple-600 font-medium text-[.8rem] px-4 rounded-[2rem] w-fit mb-2">Recomended</span>
       <span class="text-[1rem] font-medium">Ultimate</span>
       <span class="text-[2rem] font-semibold">₹2500 <span class="text-[1rem] font-normal">for 5000 credits.</span></span>
-      <button class="min-w-[150px] w-auto border-[.1em] border-purple-600 bg-purple-600 text-[1rem] text-white font-medium py-1 px-2 rounded-md cursor-pointer transition-all hover:bg-purple-700 hover:border-purple-700">Purchase Plan</button>
+      <button class="min-w-[150px] w-auto border-[.1em] border-purple-600 bg-purple-600 text-[1rem] text-white font-medium py-1 px-2 rounded-md cursor-pointer transition-all hover:bg-purple-700 hover:border-purple-700" (click)="purchase('ULTIMATE')">Purchase Plan</button>
     </section>
   </div>
 </div>

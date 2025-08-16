@@ -1,6 +1,5 @@
 package com.example.cloud_share_api.auth;
 
-import static com.example.cloud_share_api.TestUtils.TEST_TOKEN;
 import static com.example.cloud_share_api.TestUtils.createTestToken;
 import static com.example.cloud_share_api.TestUtils.createTestUser;
 
@@ -69,7 +68,8 @@ public class AuthControllerTest {
   @Autowired
   private TestRestTemplate restTemplate;
 
-  private final String BASE_URL = "/api/v1/auth";
+  private static final String MOCK_TOKEN_STRING = "TOKEN0";
+  private static final String BASE_URL = "/api/v1/auth";
 
   @BeforeEach
   void setup() {
@@ -84,7 +84,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  void canEstablishConnection() {
+  void shouldEstablishConnection() {
     Assertions.assertThat(psqlContainer.isCreated()).isTrue();
     Assertions.assertThat(psqlContainer.isRunning()).isTrue();
 
@@ -93,7 +93,7 @@ public class AuthControllerTest {
   }
 
   @Test 
-  void shouldRegisterNewUser() {
+  void shouldReturnCreated_whenRegisteringNewUser() {
     final RegistrationRequest request = new RegistrationRequest("Peter", "Griffin", "peter@test.com", "password");
 
     ResponseEntity<Map<String, Boolean>> result =  restTemplate.exchange(
@@ -107,7 +107,7 @@ public class AuthControllerTest {
   }
 
   @Test 
-  void shouldReturnConflict_onRegisterNewUser_ifUserAlreadyExists() {
+  void shouldReturnConflict_whenRegisteringDuplicateUser() {
     final RegistrationRequest request1 = new RegistrationRequest("Peter", "Griffin", "peter@test.com", "password");
 
     ResponseEntity<Map<String, Boolean>> signUpResult =  restTemplate.exchange(
@@ -132,11 +132,11 @@ public class AuthControllerTest {
   }
 
   @Test 
-  void shouldVerifyUserEmail() {
+  void shouldReturnOkAndAuthResponse_whenVerifyingEmailWithValidToken() {
     User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
-    String token = TEST_TOKEN;
+    String token = MOCK_TOKEN_STRING;
     Token verificationToken = createTestToken(token, TokenType.EMAIL_VERIFICATION);
     verificationToken.setUser(user);
 
@@ -155,11 +155,11 @@ public class AuthControllerTest {
   }
 
   @Test 
-  void shouldReturn_badRequest_onVerifyUserEmail_ifInvalidToken() {
+  void shouldReturnBadRequest_whenVerifyingEmailWithInvalidToken() {
     User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
-    Token verificationToken = createTestToken(TEST_TOKEN, TokenType.EMAIL_VERIFICATION);
+    Token verificationToken = createTestToken(MOCK_TOKEN_STRING, TokenType.EMAIL_VERIFICATION);
     verificationToken.setUser(user);
 
     tokenRepository.save(verificationToken);
@@ -175,11 +175,11 @@ public class AuthControllerTest {
   }
 
   @Test 
-  void shouldReturn_notFound_onVerifyUserEmail_ifInvalidUser() {
+  void shouldReturnNotFound_whenVerifyingEmailForNonExistentUser() {
     User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
-    Token verificationToken = createTestToken(TEST_TOKEN, TokenType.EMAIL_VERIFICATION);
+    Token verificationToken = createTestToken(MOCK_TOKEN_STRING, TokenType.EMAIL_VERIFICATION);
     verificationToken.setUser(user);
 
     tokenRepository.save(verificationToken);
@@ -195,11 +195,11 @@ public class AuthControllerTest {
   }
 
   @Test
-  void shouldRenewToken() {
+  void shouldReturnOk_whenRenewingTokenForUnverifiedUser() {
     User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
-    Token verificationToken = createTestToken(TEST_TOKEN, TokenType.EMAIL_VERIFICATION);
+    Token verificationToken = createTestToken(MOCK_TOKEN_STRING, TokenType.EMAIL_VERIFICATION);
     verificationToken.setUser(user);
 
     tokenRepository.save(verificationToken);
@@ -215,7 +215,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  void shouldReturn_badRequest_onRenewToken_ifUserIsAlreadyVerify() {
+  void shouldReturnBadRequest_whenRenewingTokenForVerifiedUser() {
     User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user.setVerify(true);
     user = userRepository.save(user);
@@ -231,11 +231,11 @@ public class AuthControllerTest {
   }
 
   @Test
-  void shouldReturn_notFound_onRenewToken_ifUserIsInvalid() {
+  void shouldReturnNotFound_whenRenewingTokenForNonExistentUser() {
     User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
-    Token verificationToken = createTestToken(TEST_TOKEN, TokenType.EMAIL_VERIFICATION);
+    Token verificationToken = createTestToken(MOCK_TOKEN_STRING, TokenType.EMAIL_VERIFICATION);
     verificationToken.setUser(user);
 
     tokenRepository.save(verificationToken);
@@ -251,7 +251,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  void shouldAuthenticateUser() {
+  void shouldReturnOkAndAuthResponse_whenAuthenticatingWithValidCredentials() {
     User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user.setVerify(true);
     user = userRepository.save(user);
@@ -271,7 +271,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  void shouldThrow_badRequest_whenAuthenticateUser_isNotVerified() {
+  void shouldReturnBadRequest_whenAuthenticatingUnverifiedUser() {
     User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
@@ -288,7 +288,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  void shouldThrow_forbidden_whenAuthenticateUser_onInvalidCred() {
+  void shouldReturnForbidden_whenAuthenticatingWithInvalidCredentials() {
     User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user = userRepository.save(user);
 
@@ -305,7 +305,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  void shouldRefreshJwtToken() {
+  void shouldReturnOkAndNewAccessToken_whenRefreshingToken() {
     User user = createTestUser("peter@test.in", passwordEncoder.encode("password"));
     user.setVerify(true);
     user = userRepository.save(user);

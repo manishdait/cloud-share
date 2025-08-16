@@ -8,30 +8,18 @@ import com.example.cloud_share_api.token.TokenType;
 import com.example.cloud_share_api.user.User;
 
 public class TestUtils {
-  /*
-   * User
-   */
-  public static final String PETER_USERNAME = "peter@test.in";
-  public static final String LOUIS_USERNAME = "louis@test.in";
-  
-  public static User createTestUser(String username) {
-    return createTestUser(username, "password");
-  }
-  public static User createTestUser(String username, String password) {
+  //User
+  public static User createTestUser(String email, String password) {
     return User.builder()
-      .firstname("Test Firstname")
-      .lastname("Test Lastname")
-      .email(username)
+      .firstname("Test")
+      .lastname("User")
+      .email(email)
       .password(password)
       .credit(5)
       .build();
   }
 
-  /*
-   * Token
-   */
-  public static String TEST_TOKEN = "T0K3N0";
-
+  //Token
   public static Token createTestToken(String token, TokenType tokenType) {
     return Token.builder()
       .token(token)
@@ -40,9 +28,7 @@ public class TestUtils {
       .build();
   }
 
-  /*
-   * File
-   */
+  //File
   public static File createFile(String fileUuid) {
     return File.builder()
       .uuid(fileUuid)

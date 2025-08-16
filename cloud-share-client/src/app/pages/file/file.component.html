@@ -5,7 +5,7 @@
 
   <section class="w-full grow flex items-center flex-col justify-center p-4 gap-4">
     @if (file()) {
-      <app-details [file]="file()!" (onDownload)="download()"/>
+      <app-details [file]="file()!" [loading]="loading()" (onDownload)="download()"/>
     } @else {
       <div class="flex items-center justify-center w-[min(100%,800px)] bg-white rounded-md shadow-sm p-8">
         <span class="text-[1rem] font-medium block text-center text-neutral-800 break-all">This file might be private or not present.</span>

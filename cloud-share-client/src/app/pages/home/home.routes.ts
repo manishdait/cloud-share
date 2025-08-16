@@ -24,6 +24,10 @@ export const homeRoutes: Routes = [
       {
         path: 'credits',
         loadComponent: () => import('./routes/credits/credits.component').then(c => c.CreditsComponent)
+      },
+      {
+        path: 'transactions',
+        loadComponent: () => import('./routes/transactions/transactions.component').then(c => c.TransactionsComponent)
       }
     ],
     canActivate: [homeGuard]

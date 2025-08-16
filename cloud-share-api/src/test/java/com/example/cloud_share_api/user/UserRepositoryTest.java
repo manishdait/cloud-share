@@ -1,7 +1,5 @@
 package com.example.cloud_share_api.user;
 
-import static com.example.cloud_share_api.TestUtils.LOUIS_USERNAME;
-import static com.example.cloud_share_api.TestUtils.PETER_USERNAME;
 import static com.example.cloud_share_api.TestUtils.createTestUser;
 
 import java.util.Optional;
@@ -32,7 +30,7 @@ public class UserRepositoryTest {
 
   @BeforeEach
   void setup() {
-    userRepository.save(createTestUser(PETER_USERNAME)); 
+    userRepository.save(createTestUser("user@test.in", "password")); 
   }
 
   @AfterEach
@@ -41,22 +39,22 @@ public class UserRepositoryTest {
   }
 
   @Test
-  void canEstablishConncection() {
+  void shouldConnectToDatabase() {
     Assertions.assertThat(psqlContainer.isCreated());
     Assertions.assertThat(psqlContainer.isRunning());
   }
 
   @Test
-  void shouldReturn_userOptional_ifUserExists_withEmail() {
-    final String email = PETER_USERNAME;
+  void shouldFindUserByEmail_whenUserExists() {
+    final String email = "user@test.in";
     final Optional<User> result = userRepository.findByEmail(email);
 
     Assertions.assertThat(result).isPresent();
   }
 
   @Test
-  void shouldReturn_emptyOptional_ifUserNotExists_withEmail() {
-    final String email = LOUIS_USERNAME;
+  void shouldReturnEmptyOptional_whenUserDoesNotExist() {
+    final String email = "anotheruser@test.in";
     final Optional<User> result = userRepository.findByEmail(email);
 
     Assertions.assertThat(result).isEmpty();

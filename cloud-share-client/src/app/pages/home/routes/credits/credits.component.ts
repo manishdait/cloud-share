@@ -1,8 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '../../../../service/auth.service';
 import { PaymentService } from '../../../../service/payment.service';
-import { Plan } from '../../../../types/plan.type';
+import { Plan, Plans } from '../../../../types/plan.type';
 import { environment } from '../../../../../environments/environment';
+import { PaymentVerificationDto } from '../../../../types/payment.type';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-credits',
@@ -16,8 +18,22 @@ export class CreditsComponent {
 
   user = this.authService.user;
 
+  onPaymnet(response: any) {
+    const request: PaymentVerificationDto = {
+      orederId: response.razorpay_order_id,
+      paymentId: response.razorpay_payment_id,
+      signature: response.razorpay_signature
+    }
+
+    this.paymentService.verify(request).subscribe({
+      next: (res) => {
+        alert(res.message);
+      }
+    })
+  }
+
   purchase(plan: Plan) {
-    this.paymentService.purchasetest(100, 'INR').subscribe({
+    this.paymentService.purchase(plan).subscribe({
       next: (res) => {
         if (!res.success) {
           return;
@@ -25,20 +41,14 @@ export class CreditsComponent {
 
         const options = {
           key: environment.RAZORPAY_API_KEY,
-          amount: 100,
+          amount: Plans[plan].amount,
           currency: 'INR',
           name: 'CloudShare',
           order_id: res.orderId,
-          handler: function (response: any) {
-            console.log('Payment ID:', response.razorpay_payment_id);
-            console.log('Order ID:', response.razorpay_order_id);
-            console.log('Signature:', response.razorpay_signature);
-            alert('Payment successful!');
-          },
+          handler: this.onPaymnet.bind(this),
           prefill: {
             name: this.user().firstname + ' ' + this.user().lastname,
-            email: this.user().email,
-            contact: '9999999999',
+            email: this.user().email
           },
           theme: {
             color: '#9810fa',

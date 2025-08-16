@@ -16,6 +16,8 @@ export class FileComponent implements OnInit {
   fileService = inject(FileService);
   file = signal<File|null>(null);
 
+  loading = signal(false);
+
   uuid = this.activeRouter.snapshot.params['id'];
 
   ngOnInit(): void {
@@ -30,6 +32,7 @@ export class FileComponent implements OnInit {
   }
 
   download() {
+    this.loading.set(true);
     this.fileService.downloadPublicFile(this.uuid).subscribe({
       next: (res) => {
         const fileName = res.headers.get('X-File-Name') as string || 'download';
@@ -41,6 +44,7 @@ export class FileComponent implements OnInit {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        this.loading.set(false);
       }
     })
   }

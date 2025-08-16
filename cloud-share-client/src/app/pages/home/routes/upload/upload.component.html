@@ -11,7 +11,7 @@
 
       <div class="text-neutral-800">
         <span class="block text-center w-full text-[1.2rem] font-medium">Drag or drop files here</span>
-        <span class="block text-center w-full text-[1rem]">or click to brows</span>
+        <span class="block text-center w-full text-[1rem]">or click to browser</span>
       </div>
     </label>
   </section>
@@ -36,7 +36,7 @@
           }
         </ul>
 
-        <button class="w-full text-[1rem] bg-purple-600 text-white cursor-pointer font-medium p-2 rounded-md hover:bg-purple-700" (click)="onUpload()">Upload</button>
+        <button class="relative w-full text-[1rem] bg-purple-600 text-white cursor-pointer font-medium p-2 rounded-md hover:bg-purple-700" [class]="{'loading': loading()}" (click)="onUpload()">Upload</button>
     }
   </section>
 </div>

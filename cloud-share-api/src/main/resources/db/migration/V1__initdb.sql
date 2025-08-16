@@ -62,3 +62,29 @@ CREATE TABLE IF NOT EXISTS file (
   CONSTRAINT file_uk UNIQUE (uuid),
   CONSTRAINT file_fk FOREIGN KEY (user_id) REFERENCES app_user(id)
 );
+
+CREATE SEQUENCE IF NOT EXISTS payment_transaction_seq
+START WITH 101 
+INCREMENT BY 1 
+MINVALUE 101 
+MAXVALUE 10000000000 
+NO CYCLE;
+
+CREATE TABLE IF NOT EXISTS payment_transaction {
+  id BIGINT NOT NULL DEFAULT NETVAL('payment_transaction_seq'),
+  amount INT NOT NULL,
+  credits INT NOT NULL,
+  order_id VARCHAR(255) NOT NULL,
+  payment_id VARCHAR(255),
+  plan VARCHAR(255) NOT NULL,
+  trasnsaction_date TIMESTAMP NOT NULL,
+  status VARCHAR(255) NOT NULL,
+  user_id BIGINT NOT NULL,
+
+  CONSTRAINT tx_pk PRIMARY KEY (id),
+  CONSTRAINT tx_ouk UNIQUE(order_id),
+  CONSTRAINT tx_puk UNIQUE(payment_id),
+  CONSTRAINT tx_plan CHECK (plan IN ('BASIC', 'PREMIUM', 'ULTIMATE')),
+  CONSTRAINT tx_status CHECK(status IN ('PROCESSING', 'SUCCESS', 'FAIL')),
+  CONSTRAINT tx_fk FOREIGN KEY REFERENCES app_user(id)
+};

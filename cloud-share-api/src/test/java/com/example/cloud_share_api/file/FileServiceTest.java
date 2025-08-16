@@ -1,5 +1,7 @@
 package com.example.cloud_share_api.file;
 
+import static com.example.cloud_share_api.TestUtils.createFile;
+import static com.example.cloud_share_api.TestUtils.createTestUser;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
@@ -14,7 +16,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +30,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.cloud_share_api.infrastructure.exceptions.AccessDeniedException;
@@ -40,7 +42,6 @@ import jakarta.persistence.EntityNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 public class FileServiceTest {
-  
   @Mock
   private UserRepository userRepository;
   
@@ -58,26 +59,14 @@ public class FileServiceTest {
 
   @BeforeEach
   void setUp() {
-    user = User.builder()
-      .id(1L)
-      .email("testuser")
-      .credit(10)
-      .build();
+    user = createTestUser("user@test.in", "password");
 
     fileUuid = UUID.randomUUID().toString();
-    file = File.builder()
-      .id(1L)
-      .uuid(fileUuid)
-      .name("testfile.txt")
-      .type("text/plain")
-      .size(1234L)
-      .isPublic(false)
-      .location("uploads/testfile.txt")
-      .user(user)
-      .uploadedAt(Instant.now())
-      .build();
+    file = createFile(fileUuid);
+    file.setUser(user);
 
     fileService = new FileService(userRepository, fileRepository);
+    ReflectionTestUtils.setField(fileService, "uploadDir", "test-uploads");
   }
 
   @AfterEach
@@ -104,6 +93,7 @@ public class FileServiceTest {
       mockedFiles.when(() -> Files.createDirectories(any(Path.class))).thenReturn(Paths.get("uploads"));
       mockedFiles.when(() -> Files.copy(any(InputStream.class), any(Path.class))).thenReturn(100L);
 
+      when(authentication.getPrincipal()).thenReturn(user);
       when(fileRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
       when(userRepository.save(any(User.class))).thenReturn(user);
 
@@ -111,7 +101,7 @@ public class FileServiceTest {
 
       Assertions.assertThat(result).isNotNull().hasSize(1);
       Assertions.assertThat(result.get(0).name()).isEqualTo("test.txt");
-      Assertions.assertThat(user.getCredit()).isEqualTo(9);
+      Assertions.assertThat(user.getCredit()).isEqualTo(4);
 
       verify(userRepository, times(1)).save(user);
       verify(fileRepository, times(1)).saveAll(anyList());

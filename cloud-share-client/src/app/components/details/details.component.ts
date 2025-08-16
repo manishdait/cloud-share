@@ -11,6 +11,7 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 })
 export class DetailsComponent {  
   file = input.required<File>();
+  loading = input.required<boolean>();
   onDownload = output<boolean>();
 
   parseDate(date: Date) {

@@ -1,3 +1,6 @@
+import { env } from "./env";
+
 export const environment = {
-  RAZORPAY_API_KEY: process.env['RAZORPAY_API_KEY']
+  production: true,
+  RAZORPAY_API_KEY: env.RAZORPAY_API_KEY
 };

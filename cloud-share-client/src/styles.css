@@ -32,3 +32,33 @@ html {
     font-size: .6rem;
   }
 }
+
+.loading {
+  color: transparent;
+}
+.loading::after {
+  opacity: 1;
+}
+
+button::after {
+  content: '';
+  position: absolute;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: .15em solid #ffffff00;
+  border-right-color: #fff;
+  border-radius: 50%;
+  top: 23%;
+  left: 47%;
+  opacity: 0;
+  animation: rotate .7s linear  infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

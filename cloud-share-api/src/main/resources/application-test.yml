@@ -1,6 +1,8 @@
 spring:
   application:
     client: http://localhost/4200
+    file:
+      upload-dir: uploads-test
   datasource:
     url: jdbc:postgresql://localhost:5432/cloud_share_db
     username: postgres

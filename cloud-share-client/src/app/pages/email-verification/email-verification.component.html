@@ -16,7 +16,7 @@
             <span class="text-[.9rem] text-red-600">*Token must have 6 character.</span>
           }
         </div>
-        <button class="bg-purple-600 text-[1.2rem] font-semibold text-white p-2 rounded-[2rem] cursor-pointer transition-all hover:scale-105 shadow-lg hover:bg-purple-700 mt-2" type="submit">Verify</button>
+        <button class="relative bg-purple-600 text-[1.2rem] font-semibold text-white p-2 rounded-[2rem] cursor-pointer transition-all hover:scale-105 shadow-lg hover:bg-purple-700 mt-2" [class]="{'loading': loading()}" type="submit">Verify</button>
       </form>
 
       <span class="block text-center w-full text-[1rem] text-medium">Resend Token? <a class="text-purple-600 cursor-pointer" (click)="renewToken()">Resend</a></span>

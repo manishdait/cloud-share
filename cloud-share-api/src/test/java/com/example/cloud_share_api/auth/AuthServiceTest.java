@@ -1,6 +1,6 @@
 package com.example.cloud_share_api.auth;
 
-import static com.example.cloud_share_api.TestUtils.TEST_TOKEN;
+import static com.example.cloud_share_api.TestUtils.createTestUser;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -64,19 +64,12 @@ public class AuthServiceTest {
   private ArgumentCaptor<Mail> mailCaptor;
   
   private User user;
+  
+  private static final String MOCK_TOKEN_STRING = "TOKEN0";
 
   @BeforeEach
   void setup() {
-    user = User.builder()
-      .id(1L)
-      .firstname("Peter")
-      .lastname("Griffin")
-      .email("peter@test.in")
-      .password("password")
-      .isVerify(false)
-      .credit(5)
-      .build();
-
+    user = createTestUser("user@test.in", "password");
     authService = new AuthService(userRepository, passwordEncoder, authenticationManager, jwtProvider, tokenService, mailService);
     ReflectionTestUtils.setField(authService, "clientUrl", "http://localhost:4200");
   }
@@ -88,32 +81,30 @@ public class AuthServiceTest {
   }
 
   @Test
-  void shouldCreateUser_andSendEmailVerificationMail_onRegisterUser() {
+  void shouldCreateUserAndSendVerificationEmail_whenRegisteringUser() {
     final String encodedPassword = "encoded-password";
-    final String token = "T0K3N0";
 
     final RegistrationRequest request = new RegistrationRequest("Peter", "Griffin", "peter@test.in", "password");
-
     when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());
     when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
-    when(tokenService.generateToken(any(User.class), eq(TokenType.EMAIL_VERIFICATION))).thenReturn(token);
+    when(tokenService.generateToken(any(User.class), eq(TokenType.EMAIL_VERIFICATION))).thenReturn(MOCK_TOKEN_STRING);
 
     authService.registerUser(request);
-
-    verify(userRepository, times(1)).findByEmail(request.email());
-    verify(passwordEncoder, times(1)).encode(request.password());
+    
     verify(userRepository, times(1)).save(userCaptor.capture());
+    verify(passwordEncoder, times(1)).encode(request.password());
+    verify(userRepository, times(1)).findByEmail(request.email());
     verify(tokenService, times(1)).generateToken(any(User.class), eq(TokenType.EMAIL_VERIFICATION));
     verify(mailService, times(1)).sendMail(mailCaptor.capture());
-
-    User capture = userCaptor.getValue();
-    Assertions.assertThat(capture).isNotNull();
-    Assertions.assertThat(capture.getFirstname()).isEqualTo(request.firstname());
-    Assertions.assertThat(capture.getLastname()).isEqualTo(request.lastname());
-    Assertions.assertThat(capture.getEmail()).isEqualTo(request.email());
-    Assertions.assertThat(capture.getCredit()).isEqualTo(5);
-    Assertions.assertThat(capture.getPassword()).isEqualTo(encodedPassword);
-    Assertions.assertThat(capture.isVerify()).isFalse();
+    
+    User userCapture = userCaptor.getValue();
+    Assertions.assertThat(userCapture).isNotNull();
+    Assertions.assertThat(userCapture.getFirstname()).isEqualTo(request.firstname());
+    Assertions.assertThat(userCapture.getLastname()).isEqualTo(request.lastname());
+    Assertions.assertThat(userCapture.getEmail()).isEqualTo(request.email());
+    Assertions.assertThat(userCapture.getCredit()).isEqualTo(5);
+    Assertions.assertThat(userCapture.getPassword()).isEqualTo(encodedPassword);
+    Assertions.assertThat(userCapture.isVerify()).isFalse();
 
     Mail mailCapture = mailCaptor.getValue();
     Assertions.assertThat(mailCapture).isNotNull();
@@ -121,27 +112,29 @@ public class AuthServiceTest {
     Assertions.assertThat(mailCapture.args().containsKey("token")).isTrue();
     Assertions.assertThat(mailCapture.args().containsKey("client_url")).isTrue();
     Assertions.assertThat(mailCapture.args().get("username")).isEqualTo(request.firstname() + " " + request.lastname());
-    Assertions.assertThat(mailCapture.args().get("token")).isEqualTo(token);
-    Assertions.assertThat(mailCapture.args().get("client_url")).isEqualTo("http://localhost:4200/verify-email?email=" + request.email());
+    Assertions.assertThat(mailCapture.args().get("token")).isEqualTo(MOCK_TOKEN_STRING);
+    Assertions.assertThat(mailCapture.args().get("client_url")).isEqualTo("http://localhost:4200/verify-email?email=" + request.email());    
   }
 
   @Test
-  void shouldThrowException_ifUserWithEmailAlreadyExists_onRegisterUser() {
-    final RegistrationRequest request = new RegistrationRequest("Peter", "Griffin", "peter@test.in", "password");
+  void shouldThrowDuplicateEntityException_whenUserAlreadyExistsOnRegister() {
+    final RegistrationRequest request = new RegistrationRequest("Peter", "Griffin", "user@test.in", "password");
     when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
 
     Assertions.assertThatThrownBy(() -> authService.registerUser(request))
       .isInstanceOf(DuplicateEntityException.class);
+    
+    verify(userRepository, times(1)).findByEmail(request.email());
   }
 
   @Test
-  void shouldAuthenticateUser_andReturnAuthResponse_onAuthenticateUser() {
+  void shouldAuthenticateUserAndReturnTokens_whenCredentialsAreValid() {
     user.setVerify(true);
 
     final String accessToken = "access-token";
     final String refreshToken = "refresh-token";
-    final AuthRequest request = new AuthRequest("peter@test.in", "password");
 
+    final AuthRequest request = new AuthRequest("user@test.in", "password");
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
     when(authentication.getPrincipal()).thenReturn(user);
     when(jwtProvider.generateToken(eq(request.email()))).thenReturn(accessToken);
@@ -149,19 +142,18 @@ public class AuthServiceTest {
 
     final AuthResponse result = authService.authenticateUser(request);
 
-    verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
-    verify(jwtProvider, times(1)).generateToken(eq(request.email()));
-    verify(jwtProvider, times(1)).generateToken(eq(request.email()), eq(7*24*60*60));
-
     Assertions.assertThat(result).isNotNull();
     Assertions.assertThat(result.accessToken()).isEqualTo(accessToken);
     Assertions.assertThat(result.refreshToken()).isEqualTo(refreshToken);
+    
+    verify(jwtProvider, times(1)).generateToken(eq(request.email()));
+    verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
+    verify(jwtProvider, times(1)).generateToken(eq(request.email()), eq(7*24*60*60));
   }
 
   @Test
-  void shouldThrowException_onAuthenticateUser_IfUserEmailIsNotVerified() {
-    final AuthRequest request = new AuthRequest("peter@test.in", "password");
-
+  void shouldThrowException_whenAuthenticatingUnverifiedUser() {
+    final AuthRequest request = new AuthRequest("user@test.in", "password");
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
     when(authentication.getPrincipal()).thenReturn(user);
 
@@ -170,9 +162,8 @@ public class AuthServiceTest {
   }
 
   @Test
-  void shouldThrowException_onAuthenticateUser_IfCredentialsAreInvalid() {
-    final AuthRequest request = new AuthRequest("another@test.in", "password");
-
+  void shouldThrowBadCredentialsException_whenCredentialsAreInvalid() {
+    final AuthRequest request = new AuthRequest("anotheruser@test.in", "password");
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
       .thenThrow(new BadCredentialsException("Invalid Credential"));
 
@@ -181,36 +172,33 @@ public class AuthServiceTest {
   }
 
   @Test
-  void shouldVerifyUserEmail_andChangeUserVerifyState_toTrue_ifSuccessfull() {
+  void shouldVerifyUserEmailAndChangeStateToTrue_onSuccess() {
     final String accessToken = "access-token";
     final String refreshToken = "refresh-token";
 
-    final String email = "peter@test.in";
-    final String token = "T0K3N0";
-
+    final String email = "user@test.in";
     when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
     when(jwtProvider.generateToken(eq(email))).thenReturn(accessToken);
     when(jwtProvider.generateToken(eq(email), eq(7*24*60*60))).thenReturn(refreshToken);
 
-    final AuthResponse result = authService.verifyEmail(email, token);
-
-    verify(userRepository, times(1)).findByEmail(email);
-    verify(userRepository, times(1)).save(any(User.class));
-    verify(tokenService, times(1)).validateToken(eq(token), eq(TokenType.EMAIL_VERIFICATION), eq(user));
-    verify(jwtProvider, times(1)).generateToken(eq(email));
-    verify(jwtProvider, times(1)).generateToken(eq(email), eq(7*24*60*60));
+    final AuthResponse result = authService.verifyEmail(email, MOCK_TOKEN_STRING);
 
     Assertions.assertThat(result).isNotNull();
     Assertions.assertThat(result.accessToken()).isEqualTo(accessToken);
     Assertions.assertThat(result.refreshToken()).isEqualTo(refreshToken);
     Assertions.assertThat(user.isVerify()).isTrue();
+    
+    verify(userRepository, times(1)).findByEmail(email);
+    verify(userRepository, times(1)).save(any(User.class));
+    verify(tokenService, times(1)).validateToken(eq(MOCK_TOKEN_STRING), eq(TokenType.EMAIL_VERIFICATION), eq(user));
+    verify(jwtProvider, times(1)).generateToken(eq(email));
+    verify(jwtProvider, times(1)).generateToken(eq(email), eq(7*24*60*60));
   }
 
   @Test
-  void shouldThrowException_onVerifyEmail_ifTokenIsInvalid() {
-    final String email = "peter@test.in";
-    final String token = "T0K3NO";
-
+  void shouldThrowException_whenVerifyingEmailWithInvalidToken() {
+    final String email = "user@test.in";
+    final String token = "000000";
     when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
     doThrow(new IllegalArgumentException("Invalid Token")).when(tokenService)
       .validateToken(token, TokenType.EMAIL_VERIFICATION, user);
@@ -220,59 +208,58 @@ public class AuthServiceTest {
   }
 
   @Test
-  void shouldThrowException_onVerifyEmail_ifInvalidUser() {
-    final String email = "another.test.in";
-    final String token = TEST_TOKEN;
-
+  void shouldThrowEntityNotFoundException_whenVerifyingEmailForNonExistentUser() {
+    final String email = "anotheruser@test.in";
     when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-    Assertions.assertThatThrownBy(() -> authService.verifyEmail(email, token))
+    Assertions.assertThatThrownBy(() -> authService.verifyEmail(email, MOCK_TOKEN_STRING))
       .isInstanceOf(EntityNotFoundException.class);
   }
 
   @Test
-  void shouldCreateNewToken_andSendEmail_onRenewToken() {
-    final String token = TEST_TOKEN;
-    final String email = "peter@test.in";
-
+  void shouldCreateNewTokenAndSendEmail_whenRenewingToken() {
+    final String email = "user@test.in";
     when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-    when(tokenService.renewToken(user, TokenType.EMAIL_VERIFICATION)).thenReturn(token);
+    when(tokenService.renewToken(user, TokenType.EMAIL_VERIFICATION)).thenReturn(MOCK_TOKEN_STRING);
 
     authService.renewToken(email);
-
-    verify(userRepository, times(1)).findByEmail(email);
-    verify(tokenService, times(1)).renewToken(user, TokenType.EMAIL_VERIFICATION);
+    
     verify(mailService, times(1)).sendMail(mailCaptor.capture());
+    verify(tokenService, times(1)).renewToken(user, TokenType.EMAIL_VERIFICATION);
+    verify(userRepository, times(1)).findByEmail(email);
 
-    Mail mailCapture = mailCaptor.getValue();
-    Assertions.assertThat(mailCapture).isNotNull();
-    Assertions.assertThat(mailCapture.args().containsKey("username")).isTrue();
-    Assertions.assertThat(mailCapture.args().containsKey("token")).isTrue();
-    Assertions.assertThat(mailCapture.args().containsKey("client_url")).isTrue();
-    Assertions.assertThat(mailCapture.args().get("username")).isEqualTo("Peter Griffin");
-    Assertions.assertThat(mailCapture.args().get("token")).isEqualTo(token);
-    Assertions.assertThat(mailCapture.args().get("client_url")).isEqualTo("http://localhost:4200/verify-email?email=" + email);
+    Mail capture = mailCaptor.getValue();
+    Assertions.assertThat(capture).isNotNull();
+    Assertions.assertThat(capture.args().containsKey("username")).isTrue();
+    Assertions.assertThat(capture.args().containsKey("token")).isTrue();
+    Assertions.assertThat(capture.args().containsKey("client_url")).isTrue();
+    Assertions.assertThat(capture.args().get("username")).isEqualTo("Test User");
+    Assertions.assertThat(capture.args().get("token")).isEqualTo(MOCK_TOKEN_STRING);
+    Assertions.assertThat(capture.args().get("client_url")).isEqualTo("http://localhost:4200/verify-email?email=" + email);    
   }
 
   @Test
-  void shouldThrowException_onRenewToken_ifUserIsAlreadyVerified() {
+  void shouldThrowIllegalStateException_whenRenewingTokenForVerifiedUser() {
     user.setVerify(true);
 
-    final String email = "peter@test.in";
-
+    final String email = "user@test.in";
     when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+    
     Assertions.assertThatThrownBy(() -> authService.renewToken(email))
       .isInstanceOf(IllegalStateException.class);
+
+    verify(userRepository, times(1)).findByEmail(email);
   }
 
   @Test
-  void shouldThrowException_onRenewToken_ifUserIsInvalid() {
-    final String email = "another.test.in";
-
+  void shouldThrowEntityNotFoundException_whenRenewingTokenForNonExistentUser() {
+    final String email = "anotheruser@test.in";
     when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
     Assertions.assertThatThrownBy(() -> authService.renewToken(email))
       .isInstanceOf(EntityNotFoundException.class);
+    
+    verify(userRepository, times(1)).findByEmail(email);
   }
   
 }
