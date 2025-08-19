@@ -40,6 +40,13 @@
         <span class="text-gray-500 group-hover:text-neutral-800">Transactions</span>
       </li>
     </ul>
+
+    <ul class="mt-auto flex flex-col gap-1 text-[1rem]">
+      <li class="p-2 rounded-md flex items-center justify-start gap-2 font-medium hover:bg-red-100 hover:translate-x-1 transition-all cursor-pointer group" (click)="logout()">
+        <fa-icon class="text-red-600" [icon]="'arrow-right-from-bracket'"/> 
+        <span class="text-red-600">Logout</span>
+      </li>
+    </ul>
   </div>
 </label>
 

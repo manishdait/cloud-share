@@ -1,4 +1,4 @@
-import { HttpBackend, HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpBackend, HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { AuthRequest, AuthResponse, RegistrationRequest } from '../types/auth.type';
 import { catchError, map, Observable, of, switchMap } from 'rxjs';
@@ -14,12 +14,7 @@ const URL = 'http://localhost:8080/api/v1/auth';
 export class AuthService {
   private client: HttpClient;
 
-  user = signal<UserDto>({
-    firstname: '',
-    lastname: '',
-    email: '',
-    credit: 0
-  });
+  user = signal<UserDto | null>(null);
 
   constructor(private backend: HttpBackend, private storage: LocalStorageService, private userService: UserService) {
     this.client = new HttpClient(backend);
@@ -76,6 +71,12 @@ export class AuthService {
         return res;
       })
     );
+  }
+
+  logout() {
+    this.storage.clear('refreshToken');
+    this.storage.clear('accessToken');
+    this.user.set(null);
   }
 
   isAuthenticated(): Observable<boolean> {

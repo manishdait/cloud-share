@@ -1,11 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../../service/auth.service';
 import { PaymentService } from '../../../../service/payment.service';
 import { Plan, Plans } from '../../../../types/plan.type';
 import { environment } from '../../../../../environments/environment';
 import { PaymentVerificationDto } from '../../../../types/payment.type';
-import { HttpClient } from '@angular/common/http';
-
 @Component({
   selector: 'app-credits',
   imports: [],
@@ -47,8 +45,8 @@ export class CreditsComponent {
           order_id: res.orderId,
           handler: this.onPaymnet.bind(this),
           prefill: {
-            name: this.user().firstname + ' ' + this.user().lastname,
-            email: this.user().email
+            name: this.user()!.firstname + ' ' + this.user()!.lastname,
+            email: this.user()!.email
           },
           theme: {
             color: '#9810fa',

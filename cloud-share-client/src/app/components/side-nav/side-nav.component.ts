@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-side-nav',
@@ -9,4 +10,11 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   styleUrl: './side-nav.component.css'
 })
 export class SideNavComponent {
+  router = inject(Router);
+  authservice = inject(AuthService);
+
+  logout() {
+    this.authservice.logout();
+    this.router.navigate(['/login'], {replaceUrl: true});
+  }
 }

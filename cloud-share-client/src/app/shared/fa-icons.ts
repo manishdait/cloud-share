@@ -1,4 +1,4 @@
-import { faBars, faClose, faCoins, faCopy, faDownload, faEllipsisVertical, faFile, faFolderClosed, faGaugeHigh, faGlobe, faLock, faReceipt, faStar, faTrash, faUpload, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRightFromBracket, faBars, faClose, faCoins, faCopy, faDownload, faEllipsisVertical, faFile, faFolderClosed, faGaugeHigh, faGlobe, faLock, faReceipt, faStar, faTrash, faUpload, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 export const fontawsomeIcons: IconDefinition[] = [
   faGaugeHigh,
@@ -15,5 +15,6 @@ export const fontawsomeIcons: IconDefinition[] = [
   faEllipsisVertical,
   faClose,
   faFile,
-  faCopy
+  faCopy,
+  faArrowRightFromBracket
 ];

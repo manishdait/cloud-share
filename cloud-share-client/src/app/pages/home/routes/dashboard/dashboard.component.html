@@ -4,7 +4,7 @@
 
     <span class="bg-purple-100 text-purple-600 p-2 flex items-center justify-center gap-1 px-4 rounded-[4rem]">
       <fa-icon class="text-[.8rem]" [icon]="'coins'"/>
-      <span class="text-[1rem] font-semibold ">{{ user().credit + ' Credit' }}</span>
+      <span class="text-[1rem] font-semibold ">{{ user()!.credit + ' Credit' }}</span>
     </span>
   </div>
 
