@@ -4,12 +4,14 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.cloud_share_api.infrastructure.security.PasswordService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthController {
   private final AuthService authService;
+  private final PasswordService passwordService;
 
   @PostMapping("/sign-up")
   public ResponseEntity<Map<String, Boolean>> registerUser(@RequestBody RegistrationRequest request) {
@@ -44,5 +47,17 @@ public class AuthController {
   @PostMapping("/refresh")
   public ResponseEntity<AuthResponse> refreshToken(HttpServletRequest request) {
     return ResponseEntity.status(HttpStatus.OK).body(authService.refreshToken(request));
+  }
+
+  @PostMapping("/forgot-password/{email}")
+  public ResponseEntity<Map<String, Boolean>> postMethodName(@PathVariable String email) {
+    passwordService.forgotPassword(email);
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("reset-password", true));
+  }
+
+  @PostMapping("/renew-password-token")
+  public ResponseEntity<Map<String, Boolean>> renewPasswordToken(@RequestParam(required = true) String email) {
+    passwordService.renewToken(email);
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("resend-token", true));
   }
 }

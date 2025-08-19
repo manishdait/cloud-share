@@ -36,7 +36,7 @@ public class SecurityConfig {
     http.csrf(csrf -> csrf.disable());
     http.cors(cors -> cors.configurationSource(configutationSource));
     http.authorizeHttpRequests(request -> {
-      request.requestMatchers("/error", "/favicon", "/api/v1/auth/**", "/api/v1/uploads/public/**").permitAll();
+      request.requestMatchers("/error", "/favicon", "/api/v1/auth/**", "/api/v1/uploads/public/**", "/api/v1/users/reset-password/*").permitAll();
       request.anyRequest().authenticated();
     });
     http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

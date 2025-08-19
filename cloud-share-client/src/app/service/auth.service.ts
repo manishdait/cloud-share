@@ -47,6 +47,10 @@ export class AuthService {
     return this.client.post<{[key: string]: boolean}>(`${URL}/renew-token?email=${email}`, null);
   }
 
+  renewPasswordToken(email: string): Observable<{[key: string]: boolean}> {
+    return this.client.post<{[key: string]: boolean}>(`${URL}/renew-password-token?email=${email}`, null);
+  }
+
   authenticateUser(request: AuthRequest): Observable<AuthResponse> {
     return this.client.post<AuthResponse>(`${URL}/login`, request).pipe(
       switchMap((res) => {
@@ -59,6 +63,10 @@ export class AuthService {
         )
       })
     );
+  }
+
+  forgotPassword(email: string): Observable<{[key: string]: boolean}> {
+    return this.client.post<{[key: string]: boolean}>(`${URL}/forgot-password/${email}`, null);
   }
 
   refreshToken(): Observable<AuthResponse> {

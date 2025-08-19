@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../service/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { sign } from 'crypto';
 
 @Component({
   selector: 'app-email-verification',
@@ -63,6 +62,6 @@ export class EmailVerificationComponent {
       error: (err) => {
 
       }
-    })
+    });
   }
 }

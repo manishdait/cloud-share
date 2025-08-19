@@ -14,3 +14,8 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 };
+
+export interface ResetPasswordRequest {
+  password: string;
+  token: string;
+}

@@ -25,5 +25,13 @@ export const routes: Routes = [
   {
     path: 'files/:id',
     loadComponent: () => import('./pages/file/file.component').then(c => c.FileComponent)
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./pages/forgot-password/forgot-password.component').then(c => c.ForgotPasswordComponent)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./pages/reset-password/reset-password.component').then(c => c.ResetPasswordComponent)
   }
 ];

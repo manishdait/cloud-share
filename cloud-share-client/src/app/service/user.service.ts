@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { UserDto } from '../types/user.type';
 import { map, Observable } from 'rxjs';
+import { ResetPasswordRequest } from '../types/auth.type';
 
 const URL = 'http://localhost:8080/api/v1/users';
 
@@ -17,5 +18,9 @@ export class UserService {
         return res;
       })
     );
+  }
+
+  resetPassword(email: string, request: ResetPasswordRequest):Observable<{[key: string]: boolean}> {
+    return this.client.patch<{[key: string]: boolean}>(`${URL}/reset-password/${email}`, request);
   }
 }

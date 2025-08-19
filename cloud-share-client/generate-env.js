@@ -10,7 +10,7 @@ envConfig.forEach(line => {
   }
 });
 
-const envFileContent = `export const env ={
+const envFileContent = `export const env = {
   RAZORPAY_API_KEY: '${config.RAZORPAY_API_KEY}'
 }`;
 
